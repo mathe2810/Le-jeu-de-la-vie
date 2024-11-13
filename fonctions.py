@@ -95,15 +95,24 @@ def evoluer(grille):
 
 # Fonction qui permet de dessiner les cellules de la grille:
 
-def dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort):
-    for y in range(0, grille.shape[0] * taille_case, taille_case):
-        for x in range(0, grille.shape[1] * taille_case, taille_case):
-            if grille[y // taille_case][x // taille_case] == 0:
-                pygame.draw.rect(fenetre, couleur_mort, (x+taille_statistiques, y, taille_case, taille_case))
+def dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort, Bool_grille):
+    n_lignes, n_colonnes = grille.shape
+    for y in range(n_lignes):
+        for x in range(n_colonnes):
+            if Bool_grille == True:
+                rect = pygame.Rect(x * taille_case + taille_statistiques, y * taille_case, taille_case, taille_case)
+                if grille[y, x] == 0:
+                    pygame.draw.rect(fenetre, couleur_mort, rect)
+                else:
+                    pygame.draw.rect(fenetre, couleur_vivant, rect)
+                pygame.draw.rect(fenetre, (128, 128, 128), rect, 1)  # Dessiner les lignes de grille grises
             else:
-                pygame.draw.rect(fenetre, couleur_vivant, (x+taille_statistiques, y, taille_case, taille_case))
+                if grille[y][x] == 0:
+                    pygame.draw.rect(fenetre, couleur_mort, (x * taille_case + taille_statistiques, y * taille_case, taille_case, taille_case))
+                else:
+                    pygame.draw.rect(fenetre, couleur_vivant, (x * taille_case + taille_statistiques, y * taille_case, taille_case, taille_case))
 
-def afficher_statistiques(fenetre, font, grille, Bool_pause):
+def afficher_statistiques(fenetre, font, grille, Bool_pause,Bool_grille):
     n_vivants = np.sum(grille)
     pos_souris = pygame.mouse.get_pos()
     
@@ -122,6 +131,13 @@ def afficher_statistiques(fenetre, font, grille, Bool_pause):
 
     texte_fps = font.render(f'FPS: {math.ceil(clock.get_fps())}', True, (0, 0, 0))
 
+    if Bool_grille == False:
+        texte_grille = font.render(f'Grille', True, (255, 255, 255))
+        pygame.draw.rect(fenetre, (0, 0, 0), (0, 160, 250, 30))
+    else:
+        texte_grille = font.render(f'Grille', True, (0, 0, 0))
+        pygame.draw.rect(fenetre, (255, 255, 255), (0, 160, 250, 30))
+
     
     fenetre.blit(texte_vivants, (10, 10))
     fenetre.blit(texte_souris, (10, 40))
@@ -130,16 +146,17 @@ def afficher_statistiques(fenetre, font, grille, Bool_pause):
     fenetre.blit(texte_plus, (200, 100))
     fenetre.blit(texte_moins, (220, 100))
     fenetre.blit(texte_fps, (10, 130))
+    fenetre.blit(texte_grille, (90, 160))
 
 # Partie utilisateur 
 
 # Fonction qui permet de gerer la souris pour changer l'etat des cellules:
 
-def gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_delay,click_delay=200):
+def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, evolution_delay,click_delay=200):
     current_time = pygame.time.get_ticks()
     new_evolution_delay = evolution_delay
     if current_time - last_click_time < click_delay:
-        return grille, Bool_pause, last_click_time,new_evolution_delay
+        return grille, Bool_pause, Bool_grille, last_click_time, new_evolution_delay
 
     x, y = pygame.mouse.get_pos()
     
@@ -150,6 +167,8 @@ def gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_del
             new_evolution_delay += 10
         elif x > 220 and y > 100 and x < 240 and y < 130:
             new_evolution_delay -= 10
+        elif x > 0 and y > 160 and x < 250 and y < 190:
+            Bool_grille = not Bool_grille
         else :
             x -= taille_statistiques
             x = x // taille_case
@@ -158,7 +177,7 @@ def gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_del
         last_click_time = current_time
         
     
-    return grille, Bool_pause, last_click_time, new_evolution_delay
+    return grille, Bool_pause, Bool_grille, last_click_time, new_evolution_delay
 
 
 
@@ -171,8 +190,8 @@ def gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_del
 # Exemple d'utilisation de la fonction dessiner_grille :
 
 # Initialisation de la grille
-# grille = creer_grille(50, 50)
-grille = creer_grille_vide(100, 100)
+grille = creer_grille(100, 100)
+# grille = creer_grille_vide(50, 50)
 
 # Initialisation de la fenêtre
 pygame.init()
@@ -190,6 +209,7 @@ font = pygame.font.SysFont('Arial', 20)
 
 # Variables de contrôle
 Bool_pause = False
+Bool_grille = False
 last_click_time = 0
 
 # Initialisation de l'horloge
@@ -213,14 +233,14 @@ while running:
         grille = evoluer(grille)
         last_evolution_time = current_time
     # Gestion de la souris
-    grille, Bool_pause, last_click_time, evolution_delay = gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_delay)
+    grille, Bool_pause, Bool_grille, last_click_time, evolution_delay = gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, evolution_delay)
 
     
     # Dessin de la grille
-    dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort)
+    dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort,Bool_grille)
     # Affichage des statistiques
     pygame.draw.rect(fenetre, (250, 250, 250), (0, 0, 250, taille_fenetre[1]))
-    afficher_statistiques(fenetre, font, grille, Bool_pause)
+    afficher_statistiques(fenetre, font, grille, Bool_pause,Bool_grille)
     pygame.display.flip()
 
     # Contrôler le taux de rafraîchissement
