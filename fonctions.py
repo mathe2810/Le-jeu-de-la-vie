@@ -57,37 +57,75 @@ def compter_voisins_vivants_laisser_revenir(grille, x, y):
 
 # Fonction qui permet de compter le nombre de voisins vivants d'une cellule : permet de compter les voisins vivants d'une cellule en considérant que la grille n est pas un tore.
 
-def compter_voisins_vivants_bloquer(grille, x, y):
+#Version 1: 
+# def compter_voisins_vivants_bloquer(grille, x, y):
+#     n_lignes, n_colonnes = grille.shape
+#     compteur = 0
+#     for i in range(-1, 2):
+#         for j in range(-1, 2):
+#             if i == 0 and j == 0:
+#                 continue
+#             voisin_x = x + i
+#             voisin_y = y + j
+#             if 0 <= voisin_x < n_colonnes and 0 <= voisin_y < n_lignes:
+#                 compteur += grille[voisin_y, voisin_x]
+#     return compteur
+
+#Version 2:
+def compter_voisins_vivants_bloquer(grille):
     n_lignes, n_colonnes = grille.shape
-    compteur = 0
-    for i in range(-1, 2):
-        for j in range(-1, 2):
-            if i == 0 and j == 0:
-                continue
-            voisin_x = x + i
-            voisin_y = y + j
-            if 0 <= voisin_x < n_colonnes and 0 <= voisin_y < n_lignes:
-                compteur += grille[voisin_y, voisin_x]
-    return compteur
+    voisins = np.zeros((n_lignes, n_colonnes), dtype=int)
+    voisins += np.roll(grille, 1, axis=0)  # Haut
+    voisins += np.roll(grille, -1, axis=0)  # Bas
+    voisins += np.roll(grille, 1, axis=1)  # Gauche
+    voisins += np.roll(grille, -1, axis=1)  # Droite
+    voisins += np.roll(np.roll(grille, 1, axis=0), 1, axis=1)  # Haut-Gauche
+    voisins += np.roll(np.roll(grille, 1, axis=0), -1, axis=1)  # Haut-Droite
+    voisins += np.roll(np.roll(grille, -1, axis=0), 1, axis=1)  # Bas-Gauche
+    voisins += np.roll(np.roll(grille, -1, axis=0), -1, axis=1)  # Bas-Droite
+    return voisins
+
     
 
 
 # Fonction qui permet de faire évoluer la grille d'un pas de temps:
+#Version 1: permet de faire évoluer la grille en considérant que la grille est un tore.
+# def evoluer(grille):
+#     n_lignes, n_colonnes = grille.shape
+#     nouvelle_grille = np.copy(grille)
+#     for y in range(n_lignes):
+#         for x in range(n_colonnes):
+#             n_voisins = compter_voisins_vivants_laisser_revenir(grille, x, y)
+#             if grille[y, x] == 1:
+#                 # Règle 1 et 2
+#                 if n_voisins < 2 or n_voisins > 3:
+#                     nouvelle_grille[y, x] = 0
+#             else:
+#                 # Règle 3
+#                 if n_voisins == 3:
+#                     nouvelle_grille[y, x] = 1
+#     return nouvelle_grille
 
+#Version 2: permet de faire évoluer la grille en considérant que la grille n est pas un tore.
 def evoluer(grille):
     n_lignes, n_colonnes = grille.shape
     nouvelle_grille = np.copy(grille)
-    for y in range(n_lignes):
-        for x in range(n_colonnes):
-            n_voisins = compter_voisins_vivants_laisser_revenir(grille, x, y)
-            if grille[y, x] == 1:
-                # Règle 1 et 2
-                if n_voisins < 2 or n_voisins > 3:
-                    nouvelle_grille[y, x] = 0
-            else:
-                # Règle 3
-                if n_voisins == 3:
-                    nouvelle_grille[y, x] = 1
+
+    # Comptage des voisins vivants en utilisant des décalages
+    voisins = np.zeros((n_lignes, n_colonnes), dtype=int)
+    voisins += np.roll(grille, 1, axis=0)  # Haut
+    voisins += np.roll(grille, -1, axis=0)  # Bas
+    voisins += np.roll(grille, 1, axis=1)  # Gauche
+    voisins += np.roll(grille, -1, axis=1)  # Droite
+    voisins += np.roll(np.roll(grille, 1, axis=0), 1, axis=1)  # Haut-Gauche
+    voisins += np.roll(np.roll(grille, 1, axis=0), -1, axis=1)  # Haut-Droite
+    voisins += np.roll(np.roll(grille, -1, axis=0), 1, axis=1)  # Bas-Gauche
+    voisins += np.roll(np.roll(grille, -1, axis=0), -1, axis=1)  # Bas-Droite
+
+    # Application des règles du jeu de la vie
+    nouvelle_grille[(grille == 1) & ((voisins < 2) | (voisins > 3))] = 0
+    nouvelle_grille[(grille == 0) & (voisins == 3)] = 1
+
     return nouvelle_grille
 
 # Fonction qui permet d'agrandir la grille de n_lignes_ajout lignes et n_colonnes_ajout colonnes:
@@ -120,22 +158,17 @@ def verifier_proportions_grille(grille, taille_case, taille_statistiques):
 
 # Fonction qui permet de dessiner les cellules de la grille:
 
-def dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort, Bool_grille):
+def dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort, Bool_grille,):
     n_lignes, n_colonnes = grille.shape
     for y in range(n_lignes):
         for x in range(n_colonnes):
-            if Bool_grille == True:
-                rect = pygame.Rect(x * taille_case + taille_statistiques, y * taille_case, taille_case, taille_case)
-                if grille[y, x] == 0:
-                    pygame.draw.rect(fenetre, couleur_mort, rect)
-                else:
-                    pygame.draw.rect(fenetre, couleur_vivant, rect)
-                pygame.draw.rect(fenetre, (128, 128, 128), rect, 1)  # Dessiner les lignes de grille grises
+            rect = pygame.Rect(x * taille_case + taille_statistiques, y * taille_case, taille_case, taille_case)
+            if grille[y, x] == 0:
+                pygame.draw.rect(fenetre, couleur_mort, rect)
             else:
-                if grille[y][x] == 0:
-                    pygame.draw.rect(fenetre, couleur_mort, (x * taille_case + taille_statistiques, y * taille_case, taille_case, taille_case))
-                else:
-                    pygame.draw.rect(fenetre, couleur_vivant, (x * taille_case + taille_statistiques, y * taille_case, taille_case, taille_case))
+                pygame.draw.rect(fenetre, couleur_vivant, rect)
+            if Bool_grille:
+                pygame.draw.rect(fenetre, (128, 128, 128), rect, 1)  # Dessiner les lignes de grille grises
 
 def afficher_statistiques(fenetre, font, grille, Bool_pause,Bool_grille):
     n_vivants = np.sum(grille)
@@ -239,8 +272,8 @@ def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, 
 # Exemple d'utilisation de la fonction dessiner_grille :
 
 # Initialisation de la grille
-grille = creer_grille(50, 50)
-# grille = creer_grille_vide(50, 50)
+# grille = creer_grille(200,200)
+grille = creer_grille_vide(200, 200)
 
 # Initialisation de la fenêtre
 pygame.init()
