@@ -135,7 +135,7 @@ def afficher_statistiques(fenetre, font, grille, Bool_pause):
 
 # Fonction qui permet de gerer la souris pour changer l'etat des cellules:
 
-def gerer_souris(grille, taille_case, Bool_pause, last_click_time, click_delay=200, evolution_delay):
+def gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_delay,click_delay=200):
     current_time = pygame.time.get_ticks()
     if current_time - last_click_time < click_delay:
         return grille, Bool_pause, last_click_time
@@ -212,7 +212,7 @@ while running:
         grille = evoluer(grille)
         last_evolution_time = current_time
     # Gestion de la souris
-    grille, Bool_pause, last_click_time,evolution_delay = gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_delay=evolution_delay)
+    grille, Bool_pause, last_click_time,evolution_delay = gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_delay)
 
     
     # Dessin de la grille
