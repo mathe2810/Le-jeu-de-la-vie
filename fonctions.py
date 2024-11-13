@@ -215,8 +215,7 @@ def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, 
                 grille = agrandir_grille(grille, 1, 1)
                 taille_case_final -= 1
                 taille_case_final = verifier_proportions_grille(grille, taille_case, taille_statistiques)
-                taille_fenetre = (n_colonnes * taille_case_final+taille_statistiques, n_lignes * taille_case_final)
-                fenetre = pygame.display.set_mode(taille_fenetre)
+
             else:
                 taille_case -= 1
         else :
@@ -240,7 +239,7 @@ def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, 
 # Exemple d'utilisation de la fonction dessiner_grille :
 
 # Initialisation de la grille
-grille = creer_grille(90, 50)
+grille = creer_grille(50, 50)
 # grille = creer_grille_vide(50, 50)
 
 # Initialisation de la fenêtre
