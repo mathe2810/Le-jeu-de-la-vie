@@ -79,7 +79,7 @@ def evoluer(grille):
     nouvelle_grille = np.copy(grille)
     for y in range(n_lignes):
         for x in range(n_colonnes):
-            n_voisins = compter_voisins_vivants_bloquer(grille, x, y)
+            n_voisins = compter_voisins_vivants_laisser_revenir(grille, x, y)
             if grille[y, x] == 1:
                 # Règle 1 et 2
                 if n_voisins < 2 or n_voisins > 3:
@@ -137,8 +137,9 @@ def afficher_statistiques(fenetre, font, grille, Bool_pause):
 
 def gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_delay,click_delay=200):
     current_time = pygame.time.get_ticks()
+    new_evolution_delay = evolution_delay
     if current_time - last_click_time < click_delay:
-        return grille, Bool_pause, last_click_time
+        return grille, Bool_pause, last_click_time,new_evolution_delay
 
     x, y = pygame.mouse.get_pos()
     
@@ -146,9 +147,9 @@ def gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_del
         if x < 250 and y < 100 and x > 0 and y > 70:
             Bool_pause = not Bool_pause
         elif x > 200 and y > 100 and x < 220 and y < 130:
-            evolution_delay += 5
+            new_evolution_delay += 10
         elif x > 220 and y > 100 and x < 240 and y < 130:
-            evolution_delay -= 5
+            new_evolution_delay -= 10
         else :
             x -= taille_statistiques
             x = x // taille_case
@@ -157,7 +158,7 @@ def gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_del
         last_click_time = current_time
         
     
-    return grille, Bool_pause, last_click_time, evolution_delay
+    return grille, Bool_pause, last_click_time, new_evolution_delay
 
 
 
@@ -170,8 +171,8 @@ def gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_del
 # Exemple d'utilisation de la fonction dessiner_grille :
 
 # Initialisation de la grille
-grille = creer_grille(50, 50)
-# grille = creer_grille_vide(100, 100)
+# grille = creer_grille(50, 50)
+grille = creer_grille_vide(100, 100)
 
 # Initialisation de la fenêtre
 pygame.init()
@@ -196,7 +197,7 @@ clock = pygame.time.Clock()
 fps = 160  # Définir le nombre d'images par seconde
 
 # Variables pour contrôler le délai entre les évolutions
-evolution_delay = 500  # Délai en millisecondes
+evolution_delay = 100  # Délai en millisecondes
 last_evolution_time = pygame.time.get_ticks()
 
 # Boucle principale du jeu
@@ -212,7 +213,7 @@ while running:
         grille = evoluer(grille)
         last_evolution_time = current_time
     # Gestion de la souris
-    grille, Bool_pause, last_click_time,evolution_delay = gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_delay)
+    grille, Bool_pause, last_click_time, evolution_delay = gerer_souris(grille, taille_case, Bool_pause, last_click_time, evolution_delay)
 
     
     # Dessin de la grille
