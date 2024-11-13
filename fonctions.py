@@ -90,8 +90,33 @@ def evoluer(grille):
                     nouvelle_grille[y, x] = 1
     return nouvelle_grille
 
+# Fonction qui permet d'agrandir la grille de n_lignes_ajout lignes et n_colonnes_ajout colonnes:
+
+def agrandir_grille(grille, n_lignes_ajout, n_colonnes_ajout):
+    n_lignes, n_colonnes = grille.shape
+    nouvelle_grille = np.zeros((n_lignes + n_lignes_ajout, n_colonnes + n_colonnes_ajout), dtype=int)
+    nouvelle_grille[:n_lignes, :n_colonnes] = grille
+    return nouvelle_grille
     
 # Partie interface graphique
+
+# Fonction qui verifie les bonnes proportions de la grille:
+
+def verifier_proportions_grille(grille, taille_case, taille_statistiques):
+    n_lignes, n_colonnes = grille.shape
+    if n_colonnes * taille_case+taille_statistiques > 1920:
+        taille_case = 1920 // n_colonnes
+    if n_lignes * taille_case > 1080:
+        taille_case = 1080 // n_lignes
+
+    if n_colonnes * taille_case+taille_statistiques < 250:
+        taille_case = 250 // n_colonnes
+
+    if n_lignes * taille_case < 350:
+        taille_case = 350 // n_lignes
+
+    return taille_case
+
 
 # Fonction qui permet de dessiner les cellules de la grille:
 
@@ -141,6 +166,9 @@ def afficher_statistiques(fenetre, font, grille, Bool_pause,Bool_grille):
     texte_zoom = font.render(f'Zoom', True, (0, 0, 0))
     texte_plus = font.render(f'+', True, (0, 0, 0))
     texte_moins = font.render(f'-', True, (0, 0, 0))
+    texte_taille_grille = font.render(f'Taille grille: {grille.shape}', True, (0, 0, 0))
+    texte_taille_case = font.render(f'Taille case: {taille_case}', True, (0, 0, 0))
+    texte_taille_finale_case = font.render(f'Taille finale case: {taille_case_final}', True, (0, 0, 0))
 
 
     
@@ -155,16 +183,19 @@ def afficher_statistiques(fenetre, font, grille, Bool_pause,Bool_grille):
     fenetre.blit(texte_zoom, (10, 190))
     fenetre.blit(texte_plus, (200, 190))
     fenetre.blit(texte_moins, (220, 190))
+    fenetre.blit(texte_taille_grille, (10, 220))
+    fenetre.blit(texte_taille_case, (10, 250))
+    fenetre.blit(texte_taille_finale_case, (10, 280))
 
 # Partie utilisateur 
 
 # Fonction qui permet de gerer la souris pour changer l'etat des cellules:
 
-def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, evolution_delay, taille_case_final, click_delay=200):
+def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, evolution_delay, taille_case_final, fenetre, click_delay=200):
     current_time = pygame.time.get_ticks()
     new_evolution_delay = evolution_delay
     if current_time - last_click_time < click_delay:
-        return grille, Bool_pause, Bool_grille, last_click_time, new_evolution_delay, taille_case
+        return grille, Bool_pause, Bool_grille, last_click_time, new_evolution_delay, taille_case, taille_case_final, fenetre
 
     x, y = pygame.mouse.get_pos()
     
@@ -181,7 +212,11 @@ def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, 
             taille_case += 1
         elif x > 220 and y > 190 and x < 240 and y < 220:
             if taille_case == taille_case_final:
-                taille_case = taille_case_final
+                grille = agrandir_grille(grille, 1, 1)
+                taille_case_final -= 1
+                taille_case_final = verifier_proportions_grille(grille, taille_case, taille_statistiques)
+                taille_fenetre = (n_colonnes * taille_case_final+taille_statistiques, n_lignes * taille_case_final)
+                fenetre = pygame.display.set_mode(taille_fenetre)
             else:
                 taille_case -= 1
         else :
@@ -192,7 +227,7 @@ def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, 
         last_click_time = current_time
         
     
-    return grille, Bool_pause, Bool_grille, last_click_time, new_evolution_delay, taille_case
+    return grille, Bool_pause, Bool_grille, last_click_time, new_evolution_delay, taille_case, taille_case_final, fenetre
 
 
 
@@ -205,7 +240,7 @@ def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, 
 # Exemple d'utilisation de la fonction dessiner_grille :
 
 # Initialisation de la grille
-grille = creer_grille(50, 50)
+grille = creer_grille(90, 50)
 # grille = creer_grille_vide(50, 50)
 
 # Initialisation de la fenêtre
@@ -215,17 +250,7 @@ taille_case = 5
 couleur_vivant = (255, 255, 255)
 couleur_mort = (0, 0, 0)
 n_lignes, n_colonnes = grille.shape
-if n_colonnes * taille_case+taille_statistiques > 1920:
-    taille_case = 1920 // n_colonnes
-if n_lignes * taille_case > 1080:
-    taille_case = 1080 // n_lignes
-
-if n_colonnes * taille_case+taille_statistiques < 250:
-    taille_case = 250 // n_colonnes
-
-if n_lignes * taille_case < 350:
-    taille_case = 350 // n_lignes
-
+taille_case = verifier_proportions_grille(grille, taille_case, taille_statistiques)
 
 taille_case_final = taille_case
 
@@ -257,12 +282,16 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
-    # Évolution de la grille
-    if not Bool_pause and current_time - last_evolution_time >= evolution_delay:
-        grille = evoluer(grille)
-        last_evolution_time = current_time
+    
+    if not Bool_pause :
+        # Évolution de la grille à intervalles réguliers
+        if current_time - last_evolution_time >= evolution_delay:
+            grille = evoluer(grille)
+            last_evolution_time = current_time
+
+
     # Gestion de la souris
-    grille, Bool_pause, Bool_grille, last_click_time, evolution_delay, taille_case = gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, evolution_delay, taille_case_final)
+    grille, Bool_pause, Bool_grille, last_click_time, evolution_delay, taille_case, taille_case_final, fenetre = gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, evolution_delay, taille_case_final, fenetre)
 
     
     # Dessin de la grille
