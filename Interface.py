@@ -39,7 +39,7 @@ def dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort, 
 
 
 # Fonction pour afficher les statistiques dans l'interface
-def afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, taille_case, taille_case_final, evolution_delay):
+def afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, Bool_reinit, taille_case, taille_case_final, evolution_delay, clock):
     n_vivants = np.sum(grille)
     pos_souris = pygame.mouse.get_pos()
 
@@ -56,7 +56,7 @@ def afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, taille
     texte_plus = font.render(f'+', True, (0, 0, 0))
     texte_moins = font.render(f'-', True, (0, 0, 0))
 
-    #texte_fps = font.render(f'FPS: {math.ceil(clock.get_fps())}', True, (0, 0, 0))
+    texte_fps = font.render(f'FPS: {math.ceil(clock.get_fps())}', True, (0, 0, 0))
 
     if Bool_grille == False:
         texte_grille = font.render(f'Grille', True, (255, 255, 255))
@@ -72,13 +72,21 @@ def afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, taille
     texte_taille_case = font.render(f'Taille case: {taille_case}', True, (0, 0, 0))
     texte_taille_finale_case = font.render(f'Taille finale case: {taille_case_final}', True, (0, 0, 0))
 
+    if Bool_reinit == False:
+        texte_reinitialiser = font.render(f'Reinitialiser', True, (255, 255, 255))
+        pygame.draw.rect(fenetre, (0, 0, 0), (0, 310, 250, 30))
+    else:
+        texte_reinitialiser = font.render(f'Reinitialiser', True, (0, 0, 0))
+        pygame.draw.rect(fenetre, (255, 255, 255), (0, 310, 250, 30))
+
+
     fenetre.blit(texte_vivants, (10, 10))
     fenetre.blit(texte_souris, (10, 40))
     fenetre.blit(texte_pause, (90, 70))
     fenetre.blit(texte_delai_evolutions, (10, 100))
     fenetre.blit(texte_plus, (200, 100))
     fenetre.blit(texte_moins, (220, 100))
-  #  fenetre.blit(texte_fps, (10, 130))
+    fenetre.blit(texte_fps, (10, 130))
     fenetre.blit(texte_grille, (90, 160))
     fenetre.blit(texte_zoom, (10, 190))
     fenetre.blit(texte_plus, (200, 190))
@@ -86,4 +94,5 @@ def afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, taille
     fenetre.blit(texte_taille_grille, (10, 220))
     fenetre.blit(texte_taille_case, (10, 250))
     fenetre.blit(texte_taille_finale_case, (10, 280))
+    fenetre.blit(texte_reinitialiser, (60, 310))
 

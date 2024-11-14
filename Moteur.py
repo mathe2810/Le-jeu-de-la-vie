@@ -56,12 +56,12 @@ def evoluer(grille):
     return nouvelle_grille
 
 
-def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, evolution_delay, taille_case_final,
+def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, Bool_reinit, last_click_time, evolution_delay, taille_case_final,
                  fenetre, taille_statistiques, click_delay=200):
     current_time = pygame.time.get_ticks()
     new_evolution_delay = evolution_delay
     if current_time - last_click_time < click_delay:
-        return grille, Bool_pause, Bool_grille, last_click_time, new_evolution_delay, taille_case, taille_case_final, fenetre
+        return grille, Bool_pause, Bool_grille, Bool_reinit, last_click_time, new_evolution_delay, taille_case, taille_case_final, fenetre
 
     x, y = pygame.mouse.get_pos()
 
@@ -84,6 +84,9 @@ def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, 
 
             else:
                 taille_case -= 1
+        elif x > 0 and y > 310 and x < 200 and y < 330:
+            Bool_reinit = not Bool_reinit
+
         else:
             x -= taille_statistiques
             x = x // taille_case
@@ -91,4 +94,4 @@ def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, 
             grille[y, x] = 1 - grille[y, x]
         last_click_time = current_time
 
-    return grille, Bool_pause, Bool_grille, last_click_time, new_evolution_delay, taille_case, taille_case_final, fenetre
+    return grille, Bool_pause, Bool_grille, Bool_reinit, last_click_time, new_evolution_delay, taille_case, taille_case_final, fenetre

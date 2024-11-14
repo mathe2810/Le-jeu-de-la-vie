@@ -263,13 +263,17 @@ def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, last_click_time, 
 
 
 
+    
+        
+
+
 
 
 # Exemple d'utilisation de la fonction dessiner_grille :
 
 # Initialisation de la grille
 grille = creer_grille(200,200)
-# grille = creer_grille_vide(200, 200)
+# grille = creer_grille_vide(50, 50)
 
 # Initialisation de la fenêtre
 pygame.init()

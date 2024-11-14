@@ -6,7 +6,10 @@ from Moteur import *
 from Sauvegarde import *
 from Analyse import *
 
-grille = creer_grille_vide(200, 200)
+supprimer_statistiques()
+
+# Création de la grille
+grille = creer_grille(200, 200)
 
 # Initialisation de la fenêtre
 pygame.init()
@@ -29,7 +32,9 @@ font = pygame.font.SysFont('Arial', 20)
 # Variables de contrôle
 Bool_pause = False
 Bool_grille = False
+Bool_reinit = False
 last_click_time = 0
+iteration = 0
 
 # Initialisation de l'horloge
 clock = pygame.time.Clock()
@@ -47,24 +52,35 @@ while running:
         if event.type == pygame.QUIT:
             running = False
 
+    if Bool_reinit:
+        grille = creer_grille_vide(200, 200)
+        Bool_reinit = False
+
     if not Bool_pause:
         # Évolution de la grille à intervalles réguliers
         if current_time - last_evolution_time >= evolution_delay:
             grille = evoluer(grille)
             last_evolution_time = current_time
 
+        stocker_statistiques_csv(np.sum(grille), grille.size - np.sum(grille), iteration)
+        iteration += 1
+
     # Gestion de la souris
-    grille, Bool_pause, Bool_grille, last_click_time, evolution_delay, taille_case, taille_case_final, fenetre = gerer_souris(
-        grille, taille_case, Bool_pause, Bool_grille, last_click_time, evolution_delay, taille_case_final, fenetre, taille_statistiques)
+    grille, Bool_pause, Bool_grille, Bool_reinit, last_click_time, evolution_delay, taille_case, taille_case_final, fenetre = gerer_souris(
+        grille, taille_case, Bool_pause, Bool_grille, Bool_reinit , last_click_time, evolution_delay, taille_case_final, fenetre, taille_statistiques)
 
     # Dessin de la grille
     dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort, Bool_grille,taille_statistiques)
     # Affichage des statistiques
     pygame.draw.rect(fenetre, (250, 250, 250), (0, 0, 250, taille_fenetre[1]))
-    afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille,taille_case, taille_case_final, evolution_delay)
+    afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, Bool_reinit, taille_case, taille_case_final, evolution_delay, clock)
     pygame.display.flip()
 
     # Contrôler le taux de rafraîchissement
     clock.tick(fps)
 
+    
+
 pygame.quit()
+statistiques = charger_statistiques_csv()
+afficher_courbe_statistiques(statistiques)
