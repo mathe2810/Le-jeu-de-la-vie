@@ -5,6 +5,51 @@ import time
 import math
 import pandas as pd
 
+
+#Fonction pour afficher le Menu avec Pygame:
+
+def Menu():
+    pygame.init()
+    taille_fenetre = (800, 600)
+    fenetre = pygame.display.set_mode(taille_fenetre)
+    pygame.display.set_caption('Menu')
+    font = pygame.font.SysFont('Arial', 30)
+    font_petit = pygame.font.SysFont('Arial', 20)
+    couleur_fond = (255, 255, 255)
+    couleur_texte = (0, 0, 0)
+    couleur_bouton = (200, 200, 200)
+    couleur_bouton_hover = (150, 150, 150)
+    couleur_bouton_click = (100, 100, 100)
+    couleur_bouton_texte = (0, 0, 0)
+    couleur_bouton_texte_hover = (255, 255, 255)
+    couleur_bouton_texte_click = (255, 255, 255)
+    running = True
+    while running:
+        fenetre.fill(couleur_fond)
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+        pos_souris = pygame.mouse.get_pos()
+        if 300 <= pos_souris[0] <= 500 and 200 <= pos_souris[1] <= 250:
+            couleur_bouton_actuelle = couleur_bouton_hover
+            couleur_texte_actuelle = couleur_bouton_texte_hover
+            if pygame.mouse.get_pressed()[0]:
+                couleur_bouton_actuelle = couleur_bouton_click
+                couleur_texte_actuelle = couleur_bouton_texte_click
+                time.sleep(0.2)
+                return True
+        else:
+            couleur_bouton_actuelle = couleur_bouton
+            couleur_texte_actuelle = couleur_bouton_texte
+        pygame.draw.rect(fenetre, couleur_bouton_actuelle, (300, 200, 200, 50))
+        texte = font.render('Jouer', True, couleur_texte_actuelle)
+        fenetre.blit(texte, (370, 210))
+        pygame.display.flip()
+    pygame.quit()
+    return False
+
+    
+
 def agrandir_grille(grille, n_lignes_ajout, n_colonnes_ajout):
     n_lignes, n_colonnes = grille.shape
     nouvelle_grille = np.zeros((n_lignes + n_lignes_ajout, n_colonnes + n_colonnes_ajout), dtype=int)
@@ -19,17 +64,17 @@ def verifier_proportions_grille(grille, taille_case, taille_statistiques):
         taille_case = 1080 // n_lignes
     if n_colonnes * taille_case + taille_statistiques < 250:
         taille_case = 250 // n_colonnes
-    if n_lignes * taille_case < 350:
-        taille_case = 350 // n_lignes
+    if n_lignes * taille_case < 450:
+        taille_case = 450 // n_lignes
     return taille_case
 
 
 # Fonction qui permet de dessiner les cellules de la grille:
-def dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort, Bool_grille, taille_statistiques):
+def dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort, Bool_grille, taille_statistiques, scroll_x, scroll_y):
     n_lignes, n_colonnes = grille.shape
     for y in range(n_lignes):
         for x in range(n_colonnes):
-            rect = pygame.Rect(x * taille_case + taille_statistiques, y * taille_case, taille_case, taille_case)
+            rect = pygame.Rect((x-scroll_x) * taille_case + taille_statistiques, (y-scroll_y) * taille_case, taille_case, taille_case)
             if grille[y, x] == 0:
                 pygame.draw.rect(fenetre, couleur_mort, rect)
             else:
@@ -39,7 +84,7 @@ def dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort, 
 
 
 # Fonction pour afficher les statistiques dans l'interface
-def afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, Bool_reinit, taille_case, taille_case_final, evolution_delay, clock):
+def afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, Bool_reinit, Bool_forme, taille_case, taille_case_final, evolution_delay, clock):
     n_vivants = np.sum(grille)
     pos_souris = pygame.mouse.get_pos()
 
@@ -79,6 +124,22 @@ def afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, Bool_r
         texte_reinitialiser = font.render(f'Reinitialiser', True, (0, 0, 0))
         pygame.draw.rect(fenetre, (255, 255, 255), (0, 310, 250, 30))
 
+    if Bool_forme == False:
+        texte_forme = font.render(f'Forme', True, (255, 255, 255))
+        pygame.draw.rect(fenetre, (0, 0, 0), (0, 340, 250, 30))
+    else:
+        texte_forme = font.render(f'Forme', True, (0, 0, 0))
+        pygame.draw.rect(fenetre, (255, 255, 255), (0, 340, 250, 30))
+
+    texte_fleche_gauche = font.render(f'←', True, (255, 255, 255))
+    pygame.draw.rect(fenetre, (0, 0, 0), (70, 405, 20, 10))
+    texte_fleche_droite = font.render(f'→', True, (255, 255, 255))
+    pygame.draw.rect(fenetre, (0, 0, 0), (140, 405, 20, 10))
+    texte_fleche_haut = font.render(f'↑', True, (255, 255, 255))
+    pygame.draw.rect(fenetre, (0, 0, 0), (110, 370, 10, 30))
+    texte_fleche_bas = font.render(f'↓', True, (255, 255, 255))
+    pygame.draw.rect(fenetre, (0, 0, 0), (110, 420, 10, 30))
+
 
     fenetre.blit(texte_vivants, (10, 10))
     fenetre.blit(texte_souris, (10, 40))
@@ -95,4 +156,28 @@ def afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, Bool_r
     fenetre.blit(texte_taille_case, (10, 250))
     fenetre.blit(texte_taille_finale_case, (10, 280))
     fenetre.blit(texte_reinitialiser, (60, 310))
+    fenetre.blit(texte_forme, (90, 340))
+    fenetre.blit(texte_fleche_gauche, (70, 395))
+    fenetre.blit(texte_fleche_droite, (140, 395))
+    fenetre.blit(texte_fleche_haut, (110, 370))
+    fenetre.blit(texte_fleche_bas, (110, 420))
+
+
+
+# Fonction pour afficher les differentes formes dans l'interface:
+
+def afficher_formes(fenetre, font, formes, couleur_vivant, couleur_mort, taille_case, taille_statistiques):
+    n_formes = len(formes)
+    for i, forme in enumerate(formes):
+        n_lignes, n_colonnes = forme.shape
+        for y in range(n_lignes):
+            for x in range(n_colonnes):
+                rect = pygame.Rect(x * taille_case + taille_statistiques + 250 * i, y * taille_case, taille_case, taille_case)
+                if forme[y, x] == 0:
+                    pygame.draw.rect(fenetre, couleur_mort, rect)
+                else:
+                    pygame.draw.rect(fenetre, couleur_vivant, rect)
+                pygame.draw.rect(fenetre, (128, 128, 128), rect, 1)  # Dessiner les lignes de grille grises
+        texte = font.render(f'Forme {i + 1}', True, (0, 0, 0))
+        fenetre.blit(texte, (250 * i + 10, n_lignes * taille_case + 10))
 
