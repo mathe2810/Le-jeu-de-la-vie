@@ -87,9 +87,11 @@ def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, Bool_reinit, last
                 taille_case += 1
             elif x > 220 and y > 190 and x < 240 and y < 220:
                 if taille_case == taille_case_final:
-                    grille = agrandir_grille(grille, 1, 1)
                     taille_case_final -= 1
-                    taille_case_final = verifier_proportions_grille(grille, taille_case, taille_statistiques)
+                    if taille_case_final == 0:
+                        taille_case_final = 1
+                    grille = agrandir_grille(grille, taille_case_final, taille_statistiques, fenetre.get_size())
+                    
                 else:
                     taille_case -= 1
 

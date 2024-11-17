@@ -50,11 +50,30 @@ def Menu():
 
     
 
-def agrandir_grille(grille, n_lignes_ajout, n_colonnes_ajout):
-    n_lignes, n_colonnes = grille.shape
-    nouvelle_grille = np.zeros((n_lignes + n_lignes_ajout, n_colonnes + n_colonnes_ajout), dtype=int)
-    nouvelle_grille[:n_lignes, :n_colonnes] = grille
+def agrandir_grille(grille, taille_case, taille_statistiques, taille_fenetre):
+    n_colonnes, n_lignes = calculer_nombre_colonnes_lignes(taille_fenetre, taille_case, taille_statistiques)
+    nouvelle_grille = np.zeros((n_lignes, n_colonnes), dtype=int)
+    
+    # Calculer les dimensions minimales pour éviter les erreurs de diffusion
+    min_lignes = min(n_lignes, grille.shape[0])
+    min_colonnes = min(n_colonnes, grille.shape[1])
+    
+    # Copier les valeurs de l'ancienne grille dans la nouvelle grille
+    nouvelle_grille[:min_lignes, :min_colonnes] = grille[:min_lignes, :min_colonnes]
+    
     return nouvelle_grille
+
+def calculer_nombre_colonnes_lignes(taille_fenetre, taille_case, taille_statistiques):
+    largeur_fenetre, hauteur_fenetre = taille_fenetre
+    print(largeur_fenetre, hauteur_fenetre)
+    nombre_colonnes = (largeur_fenetre - taille_statistiques) // taille_case
+    nombre_lignes = hauteur_fenetre // taille_case
+    print(nombre_colonnes, nombre_lignes)
+    return nombre_colonnes, nombre_lignes
+    
+
+
+
 # Fonction qui verifie les bonnes proportions de la grille:
 def verifier_proportions_grille(grille, taille_case, taille_statistiques):
     n_lignes, n_colonnes = grille.shape
