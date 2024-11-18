@@ -11,12 +11,12 @@ supprimer_statistiques()
 # Menu()
 
 # Création de la grille
-grille = creer_grille(200, 200)
+grille = creer_grille(250, 250)
 
 # Initialisation de la fenêtre
 pygame.init()
 taille_statistiques = 250
-taille_case = 5
+taille_case = 3
 couleur_vivant = (255, 255, 255)
 couleur_mort = (0, 0, 0)
 n_lignes, n_colonnes = grille.shape

@@ -192,10 +192,9 @@ def afficher_formes(fenetre, font, formes, couleur_vivant, couleur_mort, taille_
         for y in range(n_lignes):
             for x in range(n_colonnes):
                 rect = pygame.Rect(x * taille_case + taille_statistiques + 250 * i, y * taille_case, taille_case, taille_case)
-                if forme[y, x] == 0:
-                    pygame.draw.rect(fenetre, couleur_mort, rect)
-                else:
+                if forme[y, x] == 1:
                     pygame.draw.rect(fenetre, couleur_vivant, rect)
+                    
                 pygame.draw.rect(fenetre, (128, 128, 128), rect, 1)  # Dessiner les lignes de grille grises
         texte = font.render(f'Forme {i + 1}', True, (0, 0, 0))
         fenetre.blit(texte, (250 * i + 10, n_lignes * taille_case + 10))
