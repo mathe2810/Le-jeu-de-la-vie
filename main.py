@@ -5,12 +5,13 @@ from Interface import *
 from Moteur import *
 from Sauvegarde import *
 from Analyse import *
+from Class import *
 
 supprimer_statistiques()
 
 # Menu()
 
-# Création de la grille
+# Création de la grilles
 grille = creer_grille(250, 250)
 
 # Initialisation de la fenêtre
