@@ -1,6 +1,7 @@
 import numpy as np
 import pygame
 import math
+from scipy.signal import convolve2d
 
 class Grille:
     def __init__(self, n_lignes, n_colonnes, taille_case):
@@ -28,26 +29,23 @@ class Grille:
         compteur -= self.grille[y, x]
         return compteur
 
-    # Fonction qui permet de faire évoluer la grille d'un pas de temps v2
     def evoluer(self):
-        nouvelle_grille = np.copy(self.grille)
-
-        # Comptage des voisins vivants en utilisant des décalages
-        voisins = np.zeros((self.n_lignes, self.n_colonnes), dtype=int)
-        voisins += np.roll(self.grille, 1, axis=0)  # Haut
-        voisins += np.roll(self.grille, -1, axis=0)  # Bas
-        voisins += np.roll(self.grille, 1, axis=1)  # Gauche
-        voisins += np.roll(self.grille, -1, axis=1)  # Droite
-        voisins += np.roll(np.roll(self.grille, 1, axis=0), 1, axis=1)  # Haut-Gauche
-        voisins += np.roll(np.roll(self.grille, 1, axis=0), -1, axis=1)  # Haut-Droite
-        voisins += np.roll(np.roll(self.grille, -1, axis=0), 1, axis=1)  # Bas-Gauche
-        voisins += np.roll(np.roll(self.grille, -1, axis=0), -1, axis=1)  # Bas-Droite
+        # Calculer la somme des voisins vivants directement avec des décalages
+        voisins = (
+            np.roll(self.grille, 1, axis=0) + np.roll(self.grille, -1, axis=0) +
+            np.roll(self.grille, 1, axis=1) + np.roll(self.grille, -1, axis=1) +
+            np.roll(np.roll(self.grille, 1, axis=0), 1, axis=1) +
+            np.roll(np.roll(self.grille, 1, axis=0), -1, axis=1) +
+            np.roll(np.roll(self.grille, -1, axis=0), 1, axis=1) +
+            np.roll(np.roll(self.grille, -1, axis=0), -1, axis=1)
+        )
 
         # Application des règles du jeu de la vie
-        nouvelle_grille[(self.grille == 1) & ((voisins < 2) | (voisins > 3))] = 0
-        nouvelle_grille[(self.grille == 0) & (voisins == 3)] = 1
+        nouvelle_grille = (self.grille == 1) & ((voisins == 2) | (voisins == 3)) | (self.grille == 0) & (voisins == 3)
 
-        self.grille = nouvelle_grille
+        # Mise à jour de la grille
+        self.grille = nouvelle_grille.astype(int)
+
 
 
 
@@ -250,9 +248,10 @@ class Interface:
         self.fenetre.blit(texte_fleche_bas, (110, 420))
 
     def dessiner_grille(self, grille, Fenetre_util, Moteur_util):
+        n_lignes, n_colonnes = grille.grille.shape
 
         # Créer une grille de rectangles
-        x_coords, y_coords = np.meshgrid(np.arange(grille.n_colonnes), np.arange(grille.n_lignes))
+        x_coords, y_coords = np.meshgrid(np.arange(n_colonnes), np.arange(n_lignes))
         x_coords = (x_coords - Moteur_util.scroll_x) * grille.taille_case + Fenetre_util.taille_statistiques
         y_coords = (y_coords - Moteur_util.scroll_y) * grille.taille_case
 
@@ -261,19 +260,35 @@ class Interface:
         vivant_x_coords = x_coords[vivant_mask]
         vivant_y_coords = y_coords[vivant_mask]
 
+        # Dessiner les cellules mortes en arrière-plan
         rect = pygame.Rect(Fenetre_util.taille_statistiques, 0, self.fenetre.get_width(), self.fenetre.get_height())
-        pygame.draw.rect(self.fenetre, (0, 0, 0), rect)
+        pygame.draw.rect(self.fenetre, Fenetre_util.couleur_mort, rect)
 
-        # Dessiner les cellules vivantes
+        # Créer une surface temporaire pour les cellules vivantes
+        temp_surface = pygame.Surface((self.fenetre.get_width(), self.fenetre.get_height()), pygame.SRCALPHA)
+        temp_surface.fill((0, 0, 0, 0))  # Remplir avec une transparence totale
+
+        # Dessiner les cellules vivantes sur la surface temporaire
         for x, y in zip(vivant_x_coords, vivant_y_coords):
             rect = pygame.Rect(x, y, grille.taille_case, grille.taille_case)
-            pygame.draw.rect(self.fenetre, Fenetre_util.couleur_vivant, rect)
+            pygame.draw.rect(temp_surface, Fenetre_util.couleur_vivant, rect)
+
+        # Blit la surface temporaire sur la fenêtre principale
+        self.fenetre.blit(temp_surface, (0, 0))
 
         # Dessiner les lignes de grille si nécessaire
         if Moteur_util.Bool_grille:
-            for x, y in zip(vivant_x_coords, vivant_y_coords):
-                rect = pygame.Rect(x, y, grille.taille_case, grille.taille_case)
-                pygame.draw.rect(self.fenetre, (128, 128, 128), rect, 1)  # Dessiner les lignes de grille grises
+            # Dessiner les lignes horizontales
+            for y in range(n_lignes + 1):
+                start_pos = (Fenetre_util.taille_statistiques, y * grille.taille_case)
+                end_pos = (Fenetre_util.taille_statistiques + n_colonnes * grille.taille_case, y * grille.taille_case)
+                pygame.draw.line(self.fenetre, (128, 128, 128), start_pos, end_pos)
+
+            # Dessiner les lignes verticales
+            for x in range(n_colonnes + 1):
+                start_pos = (Fenetre_util.taille_statistiques + x * grille.taille_case, 0)
+                end_pos = (Fenetre_util.taille_statistiques + x * grille.taille_case, n_lignes * grille.taille_case)
+                pygame.draw.line(self.fenetre, (128, 128, 128), start_pos, end_pos)
     
 
     
