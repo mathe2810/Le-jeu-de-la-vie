@@ -89,18 +89,33 @@ def verifier_proportions_grille(grille, taille_case, taille_statistiques):
 
 
 # Fonction qui permet de dessiner les cellules de la grille:
+import pygame
+
 def dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort, Bool_grille, taille_statistiques, scroll_x, scroll_y):
     n_lignes, n_colonnes = grille.shape
-    for y in range(n_lignes):
-        for x in range(n_colonnes):
-            rect = pygame.Rect((x-scroll_x) * taille_case + taille_statistiques, (y-scroll_y) * taille_case, taille_case, taille_case)
-            if grille[y, x] == 0:
-                pygame.draw.rect(fenetre, couleur_mort, rect)
-            else:
-                pygame.draw.rect(fenetre, couleur_vivant, rect)
-            if Bool_grille:
-                pygame.draw.rect(fenetre, (128, 128, 128), rect, 1)  # Dessiner les lignes de grille grises
 
+    # Créer une grille de rectangles
+    x_coords, y_coords = np.meshgrid(np.arange(n_colonnes), np.arange(n_lignes))
+    x_coords = (x_coords - scroll_x) * taille_case + taille_statistiques
+    y_coords = (y_coords - scroll_y) * taille_case
+
+    # Aplatir les coordonnées pour itérer facilement
+    x_coords = x_coords.flatten()
+    y_coords = y_coords.flatten()
+    grille_flat = grille.flatten()
+
+    # Créer un tableau de rectangles
+    rects = [pygame.Rect(x, y, taille_case, taille_case) for x, y in zip(x_coords, y_coords)]
+
+    # Dessiner les cellules vivantes et mortes
+    for rect, cell in zip(rects, grille_flat):
+        color = couleur_vivant if cell else couleur_mort
+        pygame.draw.rect(fenetre, color, rect)
+
+    # Dessiner les lignes de grille si nécessaire
+    if Bool_grille:
+        for rect in rects:
+            pygame.draw.rect(fenetre, (128, 128, 128), rect, 1)  # Dessiner les lignes de grille grises
 
 # Fonction pour afficher les statistiques dans l'interface
 def afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, Bool_reinit, Bool_forme, taille_case, taille_case_final, evolution_delay, clock):
