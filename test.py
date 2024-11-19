@@ -12,7 +12,7 @@ supprimer_statistiques()
 # Menu()
 
 # Création de la grilles
-grille = Grille(250, 250, 3)
+grille = Grille(300, 300, 2)
 grille.creer_grille()
 
 # Initialisation de pygame

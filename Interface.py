@@ -99,23 +99,15 @@ def dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort, 
     x_coords = (x_coords - scroll_x) * taille_case + taille_statistiques
     y_coords = (y_coords - scroll_y) * taille_case
 
-    # Aplatir les coordonnées pour itérer facilement
-    x_coords = x_coords.flatten()
-    y_coords = y_coords.flatten()
-    grille_flat = grille.flatten()
-
-    # Créer un tableau de rectangles
-    rects = [pygame.Rect(x, y, taille_case, taille_case) for x, y in zip(x_coords, y_coords)]
-
     # Dessiner les cellules vivantes et mortes
-    for rect, cell in zip(rects, grille_flat):
-        color = couleur_vivant if cell else couleur_mort
-        pygame.draw.rect(fenetre, color, rect)
+    for y in range(n_lignes):
+        for x in range(n_colonnes):
+            rect = pygame.Rect(x_coords[y, x], y_coords[y, x], taille_case, taille_case)
+            color = couleur_vivant if grille[y, x] else couleur_mort
+            pygame.draw.rect(fenetre, color, rect)
 
-    # Dessiner les lignes de grille si nécessaire
-    if Bool_grille:
-        for rect in rects:
-            pygame.draw.rect(fenetre, (128, 128, 128), rect, 1)  # Dessiner les lignes de grille grises
+            if Bool_grille:
+                pygame.draw.rect(fenetre, (128, 128, 128), rect, 1)  # Dessiner les lignes de grille grises
 
 # Fonction pour afficher les statistiques dans l'interface
 def afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, Bool_reinit, Bool_forme, taille_case, taille_case_final, evolution_delay, clock):

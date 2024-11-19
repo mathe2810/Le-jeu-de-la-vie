@@ -49,14 +49,13 @@ class Grille:
 
         self.grille = nouvelle_grille
 
-    def calculer_nombre_colonnes_lignes(self, Fenetre_util, Interface_util):
-        largeur_fenetre, hauteur_fenetre = Fenetre_util.taille_fenetre
-        nombre_colonnes = (largeur_fenetre - Fenetre_util.taille_statistiques) // self.taille_case
-        nombre_lignes = hauteur_fenetre // self.taille_case
-        return nombre_colonnes, nombre_lignes
+
 
     def agrandir_grille(self, Fenetre_util, Interface_util):
-        self.n_colonnes, self.n_lignes = self.calculer_nombre_colonnes_lignes(Fenetre_util, Interface_util)
+        largeur_fenetre, hauteur_fenetre = Interface_util.fenetre.get_size()
+        self.n_colonnes = (largeur_fenetre - Fenetre_util.taille_statistiques) // self.taille_case
+        self.n_lignes  = hauteur_fenetre // self.taille_case
+        
         nouvelle_grille = np.zeros((self.n_lignes, self.n_colonnes), dtype=int)
         
         # Calculer les dimensions minimales pour éviter les erreurs de diffusion
@@ -78,6 +77,7 @@ class Grille:
             self.taille_case = 250 // self.n_colonnes
         if self.n_lignes * self.taille_case < 450:
             self.taille_case = 450 // self.n_lignes
+        Fenetre_util.taille_case_final = self.taille_case
 
 class Fenetre:
     def __init__(self, taille_statistiques, taille_case_final, grille, couleur_vivant, couleur_mort):
@@ -134,7 +134,7 @@ class Moteur:
                         Fenetre_util.taille_case_final -= 1
                         if Fenetre_util.taille_case_final == 0:
                             Fenetre_util.taille_case_final = 1
-                        grille.grille = grille.agrandir_grille(Fenetre_util, Interface_util)
+                        grille.agrandir_grille(Fenetre_util, Interface_util)
                         
                     else:
                         grille.taille_case -= 1
@@ -249,28 +249,30 @@ class Interface:
         self.fenetre.blit(texte_fleche_haut, (110, 370))
         self.fenetre.blit(texte_fleche_bas, (110, 420))
 
-    def dessiner_grille(self,grille,Fenetre_util,Moteur_util):
+    def dessiner_grille(self, grille, Fenetre_util, Moteur_util):
+
         # Créer une grille de rectangles
         x_coords, y_coords = np.meshgrid(np.arange(grille.n_colonnes), np.arange(grille.n_lignes))
         x_coords = (x_coords - Moteur_util.scroll_x) * grille.taille_case + Fenetre_util.taille_statistiques
         y_coords = (y_coords - Moteur_util.scroll_y) * grille.taille_case
 
-        # Aplatir les coordonnées pour itérer facilement
-        x_coords = x_coords.flatten()
-        y_coords = y_coords.flatten()
-        grille_flat = grille.grille.flatten()
+        # Filtrer les cellules vivantes
+        vivant_mask = grille.grille == 1
+        vivant_x_coords = x_coords[vivant_mask]
+        vivant_y_coords = y_coords[vivant_mask]
 
-        # Créer un tableau de rectangles
-        rects = [pygame.Rect(x, y, grille.taille_case, grille.taille_case) for x, y in zip(x_coords, y_coords)]
+        rect = pygame.Rect(Fenetre_util.taille_statistiques, 0, self.fenetre.get_width(), self.fenetre.get_height())
+        pygame.draw.rect(self.fenetre, (0, 0, 0), rect)
 
-        # Dessiner les cellules vivantes et mortes
-        for rect, cell in zip(rects, grille_flat):
-            color = Fenetre_util.couleur_vivant if cell else Fenetre_util.couleur_mort
-            pygame.draw.rect(self.fenetre, color, rect)
+        # Dessiner les cellules vivantes
+        for x, y in zip(vivant_x_coords, vivant_y_coords):
+            rect = pygame.Rect(x, y, grille.taille_case, grille.taille_case)
+            pygame.draw.rect(self.fenetre, Fenetre_util.couleur_vivant, rect)
 
         # Dessiner les lignes de grille si nécessaire
         if Moteur_util.Bool_grille:
-            for rect in rects:
+            for x, y in zip(vivant_x_coords, vivant_y_coords):
+                rect = pygame.Rect(x, y, grille.taille_case, grille.taille_case)
                 pygame.draw.rect(self.fenetre, (128, 128, 128), rect, 1)  # Dessiner les lignes de grille grises
     
 
