@@ -5,14 +5,13 @@ from Interface import *
 from Moteur import *
 from Sauvegarde import *
 from Analyse import *
-from Class import *
 
 supprimer_statistiques()
 
 # Menu()
 
-# Création de la grilles
-grille = creer_grille(250, 250)
+# Création de la grille
+grille = creer_grille_vide(30, 30)
 
 # Initialisation de la fenêtre
 pygame.init()
