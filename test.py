@@ -12,7 +12,7 @@ supprimer_statistiques()
 # Menu()
 
 # Création de la grilles
-grille = Grille(800, 800, 1)
+grille = Grille(250, 250)
 grille.creer_grille()
 
 # Initialisation de pygame
@@ -20,8 +20,7 @@ pygame.init()
 pygame.font.init()
 
 # Initialisation de la fenêtre
-Fenetre_util = Fenetre(250, 3, grille,(255, 255, 255),(0, 0, 0))
-grille.verifier_proportions_grille(Fenetre_util)
+Fenetre_util = Fenetre(250, 3,3, grille,(255, 255, 255),(0, 0, 0))
 
 #Initialisation de l'interface graphique
 Interface_util = Interface(pygame.display.set_mode(Fenetre_util.taille_fenetre), pygame.font.SysFont('Arial', 20))

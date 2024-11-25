@@ -4,10 +4,9 @@ import math
 from scipy.signal import convolve2d
 
 class Grille:
-    def __init__(self, n_lignes, n_colonnes, taille_case):
+    def __init__(self, n_lignes, n_colonnes):
         self.n_lignes = n_lignes
         self.n_colonnes = n_colonnes
-        self.taille_case = taille_case
         self.grille = np.zeros((n_lignes, n_colonnes), dtype=int)
 
     # Fonction qui permet de créer une grille aléatoire de taille n_lignes x n_colonnes
@@ -51,8 +50,8 @@ class Grille:
 
     def agrandir_grille(self, Fenetre_util, Interface_util):
         largeur_fenetre, hauteur_fenetre = Interface_util.fenetre.get_size()
-        self.n_colonnes = (largeur_fenetre - Fenetre_util.taille_statistiques) // self.taille_case
-        self.n_lignes  = hauteur_fenetre // self.taille_case
+        self.n_colonnes = (largeur_fenetre - Fenetre_util.taille_statistiques) // Fenetre_util.taille_case
+        self.n_lignes  = hauteur_fenetre // Fenetre_util.taille_case
         
         nouvelle_grille = np.zeros((self.n_lignes, self.n_colonnes), dtype=int)
         
@@ -67,23 +66,28 @@ class Grille:
 
     # Fonction qui verifie les bonnes proportions de la grille:
     def verifier_proportions_grille(self,Fenetre_util):
-        if self.n_colonnes * self.taille_case + Fenetre_util.taille_statistiques > 1920:
-            self.taille_case = 1920 // self.n_colonnes
-        if self.n_lignes * self.taille_case > 1080:
-            self.taille_case = 1080 // self.n_lignes
-        if self.n_colonnes * self.taille_case + Fenetre_util.taille_statistiques < 250:
-            self.taille_case = 250 // self.n_colonnes
-        if self.n_lignes * self.taille_case < 450:
-            self.taille_case = 450 // self.n_lignes
-        Fenetre_util.taille_case_final = self.taille_case
+        if self.n_colonnes * Fenetre_util.taille_case + Fenetre_util.taille_statistiques > 1920:
+            Fenetre_util.taille_case = 1920 // self.n_colonnes
+        if self.n_lignes * Fenetre_util.taille_case > 1080:
+            Fenetre_util.taille_case = 1080 // self.n_lignes
+        if self.n_colonnes * Fenetre_util.taille_case + Fenetre_util.taille_statistiques < 250:
+            Fenetre_util.taille_case = 250 // self.n_colonnes
+        if self.n_lignes * Fenetre_util.taille_case < 450:
+            Fenetre_util.taille_case = 450 // self.n_lignes
+            print('trop petit',Fenetre_util.taille_case)
+
+        Fenetre_util.taille_case_final = Fenetre_util.taille_case
 
 class Fenetre:
-    def __init__(self, taille_statistiques, taille_case_final, grille, couleur_vivant, couleur_mort):
+    def __init__(self, taille_statistiques, taille_case, taille_case_final, grille, couleur_vivant, couleur_mort,):
         self.taille_statistiques = taille_statistiques
+        self.taille_case = taille_case
         self.taille_case_final = taille_case_final
-        self.taille_fenetre = (grille.n_colonnes * grille.taille_case + taille_statistiques, grille.n_lignes * grille.taille_case)
+        grille.verifier_proportions_grille(self)
+        self.taille_fenetre = (grille.n_colonnes * self.taille_case + taille_statistiques, grille.n_lignes * self.taille_case)
         self.couleur_vivant = couleur_vivant
         self.couleur_mort = couleur_mort
+
 
 class Moteur:
     def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form, last_click_time, iteration, scroll_x, scroll_y, clock, fps, evolution_delay, last_evolution_time):
@@ -126,16 +130,23 @@ class Moteur:
 
                 #Gestion du zoom
                 elif x > 200 and y > 190 and x < 220 and y < 220:
-                    grille.taille_case += 1
+                    Fenetre_util.taille_case += 1
                 elif x > 220 and y > 190 and x < 240 and y < 220:
-                    if grille.taille_case == Fenetre_util.taille_case_final:
+                    if Fenetre_util.taille_case == Fenetre_util.taille_case_final:
                         Fenetre_util.taille_case_final -= 1
+                        Fenetre_util.taille_case -=1
                         if Fenetre_util.taille_case_final == 0:
                             Fenetre_util.taille_case_final = 1
+                            Fenetre_util.taille_case = 1
                         grille.agrandir_grille(Fenetre_util, Interface_util)
                         
                     else:
-                        grille.taille_case -= 1
+                        Fenetre_util.taille_case -= 1
+
+                        0, 340, 250, 30
+
+                elif x > 0 and y > 340 and x < 250 and y < 370:
+                        self.Bool_form = not self.Bool_form
 
                 # Gestion du scroll
                 elif x > 70 and y > 405 and x < 90 and y < 415:
@@ -147,6 +158,7 @@ class Moteur:
                 elif x > 110 and y > 420 and x < 120 and y < 450:
                     self.scroll_y -= 1
 
+
                 # Gestion de la réinitialisation
                 elif x > 0 and y > 310 and x < 200 and y < 330:
                     self.Bool_reinit = not self.Bool_reinit
@@ -154,14 +166,26 @@ class Moteur:
             # Gestion du clic sur la grille
             else:
                 x -= Fenetre_util.taille_statistiques
-                x = x // grille.taille_case
-                y = y // grille.taille_case
+                x = x // Fenetre_util.taille_case
+                y = y // Fenetre_util.taille_case
                 x += self.scroll_x
                 y += self.scroll_y
                 grille.grille[y, x] = 1 - grille.grille[y, x]
             self.last_click_time = current_time
 
-        
+        # if self.scroll_x*Fenetre_util.taille_case + Fenetre_util.taille_statistiques  < 0:
+        #     self.scroll_x += 1
+        #     print('trop à droite')
+        # if self.scroll_y*Fenetre_util.taille_case < 0:
+        #     self.scroll_y += 1
+        #     print('trop en haut')
+        # if self.scroll_x*Fenetre_util.taille_case + Fenetre_util.taille_statistiques > Fenetre_util.taille_fenetre[0]:
+        #     self.scroll_x -= 1
+        #     print('trop à gauche')
+        # if self.scroll_y*Fenetre_util.taille_case > Fenetre_util.taille_fenetre[1]:
+        #     self.scroll_y -= 1
+        #     print('trop en bas')
+
 
 class Interface:
     def __init__(self,fenetre,font):
@@ -199,7 +223,7 @@ class Interface:
         texte_plus = self.font.render(f'+', True, (0, 0, 0))
         texte_moins = self.font.render(f'-', True, (0, 0, 0))
         texte_taille_grille = self.font.render(f'Taille grille: {grille.grille.shape}', True, (0, 0, 0))
-        texte_taille_case = self.font.render(f'Taille case: {grille.taille_case}', True, (0, 0, 0))
+        texte_taille_case = self.font.render(f'Taille case: {Fenetre_util.taille_case}', True, (0, 0, 0))
         texte_taille_finale_case = self.font.render(f'Taille finale case: {Fenetre_util.taille_case_final}', True, (0, 0, 0))
 
         if Moteur_util.Bool_reinit == False:
@@ -252,13 +276,21 @@ class Interface:
 
         # Créer une grille de rectangles
         x_coords, y_coords = np.meshgrid(np.arange(n_colonnes), np.arange(n_lignes))
-        x_coords = (x_coords - Moteur_util.scroll_x) * grille.taille_case + Fenetre_util.taille_statistiques
-        y_coords = (y_coords - Moteur_util.scroll_y) * grille.taille_case
+        x_coords = (x_coords - Moteur_util.scroll_x) * Fenetre_util.taille_case + Fenetre_util.taille_statistiques
+        y_coords = (y_coords - Moteur_util.scroll_y) * Fenetre_util.taille_case
 
         # Filtrer les cellules vivantes
         vivant_mask = grille.grille == 1
         vivant_x_coords = x_coords[vivant_mask]
         vivant_y_coords = y_coords[vivant_mask]
+
+        #Filtrer les cellules en dehors de l'écran
+        mask = (vivant_x_coords >= Fenetre_util.taille_statistiques) & (vivant_x_coords < self.fenetre.get_width())
+        mask &= (vivant_y_coords >= 0) & (vivant_y_coords < self.fenetre.get_height())
+        dessin_x_coords = vivant_x_coords[mask]
+        dessin_y_coords = vivant_y_coords[mask]
+    
+        
 
         # Dessiner les cellules mortes en arrière-plan
         rect = pygame.Rect(Fenetre_util.taille_statistiques, 0, self.fenetre.get_width(), self.fenetre.get_height())
@@ -269,8 +301,8 @@ class Interface:
         temp_surface.fill((0, 0, 0, 0))  # Remplir avec une transparence totale
 
         # Dessiner les cellules vivantes sur la surface temporaire
-        for x, y in zip(vivant_x_coords, vivant_y_coords):
-            rect = pygame.Rect(x, y, grille.taille_case, grille.taille_case)
+        for x, y in zip(dessin_x_coords, dessin_y_coords):
+            rect = pygame.Rect(x, y, Fenetre_util.taille_case, Fenetre_util.taille_case)
             pygame.draw.rect(temp_surface, Fenetre_util.couleur_vivant, rect)
 
         # Blit la surface temporaire sur la fenêtre principale
@@ -280,14 +312,14 @@ class Interface:
         if Moteur_util.Bool_grille:
             # Dessiner les lignes horizontales
             for y in range(n_lignes + 1):
-                start_pos = (Fenetre_util.taille_statistiques, y * grille.taille_case)
-                end_pos = (Fenetre_util.taille_statistiques + n_colonnes * grille.taille_case, y * grille.taille_case)
+                start_pos = (Fenetre_util.taille_statistiques, y * Fenetre_util.taille_case)
+                end_pos = (Fenetre_util.taille_statistiques + n_colonnes * Fenetre_util.taille_case, y * Fenetre_util.taille_case)
                 pygame.draw.line(self.fenetre, (128, 128, 128), start_pos, end_pos)
 
             # Dessiner les lignes verticales
             for x in range(n_colonnes + 1):
-                start_pos = (Fenetre_util.taille_statistiques + x * grille.taille_case, 0)
-                end_pos = (Fenetre_util.taille_statistiques + x * grille.taille_case, n_lignes * grille.taille_case)
+                start_pos = (Fenetre_util.taille_statistiques + x * Fenetre_util.taille_case, 0)
+                end_pos = (Fenetre_util.taille_statistiques + x * Fenetre_util.taille_case, n_lignes * Fenetre_util.taille_case)
                 pygame.draw.line(self.fenetre, (128, 128, 128), start_pos, end_pos)
     
 
