@@ -90,7 +90,7 @@ class Fenetre:
 
 
 class Moteur:
-    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form, last_click_time, iteration, scroll_x, scroll_y, clock, fps, evolution_delay, last_evolution_time):
+    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time):
         self.Bool_pause = Bool_pause
         self.Bool_grille = Bool_grille
         self.Bool_reinit = Bool_reinit
@@ -99,10 +99,13 @@ class Moteur:
         self.iteration = iteration
         self.scroll_x = scroll_x
         self.scroll_y = scroll_y
+        self.coordHG = coordHG
+        self.coordBD = coordBD
         self.clock = clock
         self.fps = fps
         self.evolution_delay = evolution_delay
         self.last_evolution_time = last_evolution_time
+        self.coordHG = coordHG
 
     def gerer_souris(self,grille,Fenetre_util,Interface_util, click_delay=200):
         current_time = pygame.time.get_ticks()
@@ -172,19 +175,23 @@ class Moteur:
                 y += self.scroll_y
                 grille.grille[y, x] = 1 - grille.grille[y, x]
             self.last_click_time = current_time
+        
+        if self.coordHG[0] - self.scroll_x < 0:
+            self.scroll_x -= 1
+        elif self.coordHG[1] - self.scroll_y < 0:
+            self.scroll_y -= 1
+        elif self.coordBD[0] - self.scroll_x > grille.n_colonnes-1:
+            self.scroll_x += 1
+        elif self.coordBD[1] - self.scroll_y > grille.n_lignes-1:
+            self.scroll_y += 1
 
-        # if self.scroll_x*Fenetre_util.taille_case + Fenetre_util.taille_statistiques  < 0:
-        #     self.scroll_x += 1
-        #     print('trop à droite')
-        # if self.scroll_y*Fenetre_util.taille_case < 0:
-        #     self.scroll_y += 1
-        #     print('trop en haut')
-        # if self.scroll_x*Fenetre_util.taille_case + Fenetre_util.taille_statistiques > Fenetre_util.taille_fenetre[0]:
-        #     self.scroll_x -= 1
-        #     print('trop à gauche')
-        # if self.scroll_y*Fenetre_util.taille_case > Fenetre_util.taille_fenetre[1]:
-        #     self.scroll_y -= 1
-        #     print('trop en bas')
+        print(self.coordBD[0] - self.scroll_x)
+            
+            
+
+        
+
+       
 
 
 class Interface:
@@ -279,16 +286,37 @@ class Interface:
         x_coords = (x_coords - Moteur_util.scroll_x) * Fenetre_util.taille_case + Fenetre_util.taille_statistiques
         y_coords = (y_coords - Moteur_util.scroll_y) * Fenetre_util.taille_case
 
+        int_x_coords = x_coords
+        int_y_coords = y_coords
+
+        #Filtrer les cellules en dehors de l'écran
+        mask = (int_x_coords >= Fenetre_util.taille_statistiques) & (int_x_coords < self.fenetre.get_width())
+        mask &= (int_y_coords >= 0) & (int_y_coords < self.fenetre.get_height())
+        int_x_coords = int_x_coords[mask]
+        int_y_coords = int_y_coords[mask]
+
+        caclCoordHG =  ((int_x_coords[0]-Fenetre_util.taille_statistiques)/Fenetre_util.taille_case)+Moteur_util.scroll_x, (int_y_coords[0]/Fenetre_util.taille_case)+Moteur_util.scroll_y
+        caclCoordBD =  ((int_x_coords[-1]-Fenetre_util.taille_statistiques)/Fenetre_util.taille_case)+Moteur_util.scroll_x, (int_y_coords[-1]/Fenetre_util.taille_case)+Moteur_util.scroll_y
+
+        
+        #Premier point de la grille
+        Moteur_util.coordHG = caclCoordHG
+
+
+        #Derneir point de la grille
+        Moteur_util.coordBD = caclCoordBD
+        
+
         # Filtrer les cellules vivantes
         vivant_mask = grille.grille == 1
         vivant_x_coords = x_coords[vivant_mask]
         vivant_y_coords = y_coords[vivant_mask]
 
-        #Filtrer les cellules en dehors de l'écran
-        mask = (vivant_x_coords >= Fenetre_util.taille_statistiques) & (vivant_x_coords < self.fenetre.get_width())
-        mask &= (vivant_y_coords >= 0) & (vivant_y_coords < self.fenetre.get_height())
-        dessin_x_coords = vivant_x_coords[mask]
-        dessin_y_coords = vivant_y_coords[mask]
+        mask1 = (vivant_x_coords >= Fenetre_util.taille_statistiques) & (vivant_x_coords < self.fenetre.get_width())
+        mask1 &= (vivant_y_coords >= 0) & (vivant_y_coords < self.fenetre.get_height())
+        dessin_x_coords = vivant_x_coords[mask1]
+        dessin_y_coords = vivant_y_coords[mask1]
+
     
         
 

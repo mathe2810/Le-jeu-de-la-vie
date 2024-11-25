@@ -26,7 +26,7 @@ Fenetre_util = Fenetre(250, 3,3, grille,(255, 255, 255),(0, 0, 0))
 Interface_util = Interface(pygame.display.set_mode(Fenetre_util.taille_fenetre), pygame.font.SysFont('Arial', 20))
 
 #Initialisation du moteur
-Moteur_util = Moteur(False, False, False,False, 0, 0, 0, 0, pygame.time.Clock(), 160, 20, pygame.time.get_ticks())
+Moteur_util = Moteur(False, False, False,False, 0, 0, 0, 0, (0,0), (0,0), pygame.time.Clock(), 160, 20, pygame.time.get_ticks())
 
 
 # Boucle principale du jeu
