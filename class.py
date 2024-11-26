@@ -76,6 +76,14 @@ class Grille:
             Fenetre_util.taille_case = 600 // self.n_lignes
 
         Fenetre_util.taille_case_final = Fenetre_util.taille_case
+    
+    def sauvegarder_grille_npz(self, nom_fichier):
+        np.savez(nom_fichier, grille=self.grille)
+
+    def charger_grille_npz(self, nom_fichier):
+        with np.load(nom_fichier) as data:
+            self.grille = data['grille']
+            self.n_lignes, self.n_colonnes = self.grille.shape
 
 class Fenetre:
     def __init__(self, taille_statistiques, taille_case, taille_case_final, grille, couleur_vivant, couleur_mort,):
@@ -89,7 +97,7 @@ class Fenetre:
 
 
 class Moteur:
-    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement):
+    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form,Bool_sauvegarde, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement):
         self.Bool_pause = Bool_pause
         self.Bool_grille = Bool_grille
         self.Bool_reinit = Bool_reinit
@@ -106,6 +114,7 @@ class Moteur:
         self.last_evolution_time = last_evolution_time
         self.coordHG = coordHG
         self.vitesse_deplacement = vitesse_deplacement
+        self.Bool_sauvegarde = Bool_sauvegarde
 
     def gerer_souris(self,grille,Fenetre_util,Interface_util, click_delay=200):
         current_time = pygame.time.get_ticks()
@@ -171,6 +180,11 @@ class Moteur:
                     self.vitesse_deplacement += 1
                 elif x > 240 and y > 450 and x < 260 and y < 480:
                     self.vitesse_deplacement -= 1
+
+                # Gestion de la sauvegarde
+                elif x > 0 and y > 480 and x < 250 and y < 510:
+                    self.Bool_sauvegarde = not self.Bool_sauvegarde
+                
 
             # Gestion du clic sur la grille
             else:
@@ -257,6 +271,13 @@ class Interface:
             texte_forme = self.font.render(f'Forme', True, (0, 0, 0))
             pygame.draw.rect(self.fenetre, (255, 255, 255), (0, 340, 250, 30))
 
+        if Moteur_util.Bool_sauvegarde == False:
+            texte_sauvegarde = self.font.render(f'Sauvegarde', True, (255, 255, 255))
+            pygame.draw.rect(self.fenetre, (0, 0, 0), (0, 480, 250, 30))
+        else:
+            texte_sauvegarde = self.font.render(f'Sauvegarde', True, (0, 0, 0))
+            pygame.draw.rect(self.fenetre, (255, 255, 255), (0, 480, 250, 30))
+
         texte_fleche_gauche = self.font.render(f'←', True, (255, 255, 255))
         pygame.draw.rect(self.fenetre, (0, 0, 0), (70, 405, 20, 10))
         texte_fleche_droite = self.font.render(f'→', True, (255, 255, 255))
@@ -294,6 +315,7 @@ class Interface:
         self.fenetre.blit(texte_deplacement_vitesse, (10, 450))
         self.fenetre.blit(texte_plus_deplacement, (220, 450))
         self.fenetre.blit(texte_moins_deplacement, (240, 450))
+        self.fenetre.blit(texte_sauvegarde, (60, 480))
 
     def dessiner_grille(self, grille, Fenetre_util, Moteur_util):
         n_lignes, n_colonnes = grille.grille.shape
@@ -368,4 +390,32 @@ class Interface:
                 pygame.draw.line(self.fenetre, (128, 128, 128), start_pos, end_pos)
     
 
-    
+class Forme():
+    def __init__(self, grille, Fenetre_util, Moteur_util, Interface_util):
+        self.grille = grille
+        self.Fenetre_util = Fenetre_util
+        self.Moteur_util = Moteur_util
+        self.Interface_util = Interface_util
+
+    def carre(self, x, y, taille):
+        self.grille.grille[y:y+taille, x:x+taille] = 1
+
+    def planeur(self, x, y):
+        planeur = np.array([[0, 1, 0],
+                            [0, 0, 1],
+                            [1, 1, 1]])
+        self.grille.grille[y:y+3, x:x+3] = planeur
+
+    def sauvegarder_formes(self, filename):
+        formes = {
+            'carre': np.array([[1, 1], [1, 1]]),
+            'planeur': np.array([[0, 1, 0], [0, 0, 1], [1, 1, 1]])
+        }
+        np.savez_compressed(filename, **formes)
+
+    def charger_formes(self, filename):
+        data = np.load(filename)
+        return data
+
+    def ajouter_forme(self, forme, x, y):
+        self.grille.grille[y:y+forme.shape[0], x:x+forme.shape[1]] = forme
