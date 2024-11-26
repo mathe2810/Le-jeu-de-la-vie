@@ -66,15 +66,14 @@ class Grille:
 
     # Fonction qui verifie les bonnes proportions de la grille:
     def verifier_proportions_grille(self,Fenetre_util):
-        if self.n_colonnes * Fenetre_util.taille_case + Fenetre_util.taille_statistiques > 1920:
-            Fenetre_util.taille_case = 1920 // self.n_colonnes
-        if self.n_lignes * Fenetre_util.taille_case > 1080:
-            Fenetre_util.taille_case = 1080 // self.n_lignes
+        if self.n_colonnes * Fenetre_util.taille_case + Fenetre_util.taille_statistiques > 1800:
+            Fenetre_util.taille_case = 1800 // self.n_colonnes
+        if self.n_lignes * Fenetre_util.taille_case > 800:
+            Fenetre_util.taille_case = 800 // self.n_lignes
         if self.n_colonnes * Fenetre_util.taille_case + Fenetre_util.taille_statistiques < 250:
             Fenetre_util.taille_case = 250 // self.n_colonnes
-        if self.n_lignes * Fenetre_util.taille_case < 450:
-            Fenetre_util.taille_case = 450 // self.n_lignes
-            print('trop petit',Fenetre_util.taille_case)
+        if self.n_lignes * Fenetre_util.taille_case < 600:
+            Fenetre_util.taille_case = 600 // self.n_lignes
 
         Fenetre_util.taille_case_final = Fenetre_util.taille_case
 
@@ -90,7 +89,7 @@ class Fenetre:
 
 
 class Moteur:
-    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time):
+    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement):
         self.Bool_pause = Bool_pause
         self.Bool_grille = Bool_grille
         self.Bool_reinit = Bool_reinit
@@ -106,6 +105,7 @@ class Moteur:
         self.evolution_delay = evolution_delay
         self.last_evolution_time = last_evolution_time
         self.coordHG = coordHG
+        self.vitesse_deplacement = vitesse_deplacement
 
     def gerer_souris(self,grille,Fenetre_util,Interface_util, click_delay=200):
         current_time = pygame.time.get_ticks()
@@ -153,18 +153,24 @@ class Moteur:
 
                 # Gestion du scroll
                 elif x > 70 and y > 405 and x < 90 and y < 415:
-                    self.scroll_x += 1
+                    self.scroll_x = self.scroll_x - self.vitesse_deplacement
                 elif x > 140 and y > 405 and x < 160 and y < 415:
-                    self.scroll_x -= 1
+                    self.scroll_x = self.scroll_x + self.vitesse_deplacement
                 elif x > 110 and y > 370 and x < 120 and y < 400:
-                    self.scroll_y += 1
+                    self.scroll_y -= self.vitesse_deplacement
                 elif x > 110 and y > 420 and x < 120 and y < 450:
-                    self.scroll_y -= 1
+                    self.scroll_y += self.vitesse_deplacement
 
 
                 # Gestion de la réinitialisation
                 elif x > 0 and y > 310 and x < 200 and y < 330:
                     self.Bool_reinit = not self.Bool_reinit
+
+                # Gestion de la vitesse de déplacement
+                elif x > 220 and y > 450 and x < 240 and y < 480:
+                    self.vitesse_deplacement += 1
+                elif x > 240 and y > 450 and x < 260 and y < 480:
+                    self.vitesse_deplacement -= 1
 
             # Gestion du clic sur la grille
             else:
@@ -176,16 +182,20 @@ class Moteur:
                 grille.grille[y, x] = 1 - grille.grille[y, x]
             self.last_click_time = current_time
         
-        if self.coordHG[0] - self.scroll_x < 0:
-            self.scroll_x -= 1
-        elif self.coordHG[1] - self.scroll_y < 0:
-            self.scroll_y -= 1
-        elif self.coordBD[0] - self.scroll_x > grille.n_colonnes-1:
-            self.scroll_x += 1
-        elif self.coordBD[1] - self.scroll_y > grille.n_lignes-1:
-            self.scroll_y += 1
+        if self.coordHG[0] + self.scroll_x < 0:
+            self.scroll_x += self.vitesse_deplacement
+        elif self.coordHG[1] + self.scroll_y < 0:
+            self.scroll_y += self.vitesse_deplacement
+        elif self.coordBD[0] + self.scroll_x > grille.n_colonnes-1:
+            self.scroll_x -= self.vitesse_deplacement
+        elif self.coordBD[1] + self.scroll_y > grille.n_lignes-1:
+            self.scroll_y -= self.vitesse_deplacement
 
-        print(self.coordBD[0] - self.scroll_x)
+        if self.vitesse_deplacement < 1:
+            self.vitesse_deplacement = 1
+        elif self.vitesse_deplacement > 5:
+            self.vitesse_deplacement = 5
+
             
             
 
@@ -256,6 +266,10 @@ class Interface:
         texte_fleche_bas = self.font.render(f'↓', True, (255, 255, 255))
         pygame.draw.rect(self.fenetre, (0, 0, 0), (110, 420, 10, 30))
 
+        texte_deplacement_vitesse = self.font.render(f'Vitesse de déplacement: {Moteur_util.vitesse_deplacement}', True, (0, 0, 0))
+        texte_plus_deplacement = self.font.render(f'+', True, (0, 0, 0))
+        texte_moins_deplacement = self.font.render(f'-', True, (0, 0, 0))
+
 
         self.fenetre.blit(texte_vivants, (10, 10))
         self.fenetre.blit(texte_souris, (10, 40))
@@ -277,6 +291,9 @@ class Interface:
         self.fenetre.blit(texte_fleche_droite, (140, 395))
         self.fenetre.blit(texte_fleche_haut, (110, 370))
         self.fenetre.blit(texte_fleche_bas, (110, 420))
+        self.fenetre.blit(texte_deplacement_vitesse, (10, 450))
+        self.fenetre.blit(texte_plus_deplacement, (220, 450))
+        self.fenetre.blit(texte_moins_deplacement, (240, 450))
 
     def dessiner_grille(self, grille, Fenetre_util, Moteur_util):
         n_lignes, n_colonnes = grille.grille.shape
@@ -295,8 +312,8 @@ class Interface:
         int_x_coords = int_x_coords[mask]
         int_y_coords = int_y_coords[mask]
 
-        caclCoordHG =  ((int_x_coords[0]-Fenetre_util.taille_statistiques)/Fenetre_util.taille_case)+Moteur_util.scroll_x, (int_y_coords[0]/Fenetre_util.taille_case)+Moteur_util.scroll_y
-        caclCoordBD =  ((int_x_coords[-1]-Fenetre_util.taille_statistiques)/Fenetre_util.taille_case)+Moteur_util.scroll_x, (int_y_coords[-1]/Fenetre_util.taille_case)+Moteur_util.scroll_y
+        caclCoordHG =  ((int_x_coords[0]-Fenetre_util.taille_statistiques)//Fenetre_util.taille_case)+Moteur_util.scroll_x, (int_y_coords[0]//Fenetre_util.taille_case)+Moteur_util.scroll_y
+        caclCoordBD =  ((int_x_coords[-1]-Fenetre_util.taille_statistiques)//Fenetre_util.taille_case)+Moteur_util.scroll_x, (int_y_coords[-1]//Fenetre_util.taille_case)+Moteur_util.scroll_y
 
         
         #Premier point de la grille
