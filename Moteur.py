@@ -97,13 +97,13 @@ def gerer_souris(grille, taille_case, Bool_pause, Bool_grille, Bool_reinit, last
 
             # Gestion du scroll
             elif x > 70 and y > 405 and x < 90 and y < 415:
-                scroll_x += 1
-            elif x > 140 and y > 405 and x < 160 and y < 415:
                 scroll_x -= 1
+            elif x > 140 and y > 405 and x < 160 and y < 415:
+                scroll_x += 1
             elif x > 110 and y > 370 and x < 120 and y < 400:
-                scroll_y += 1
-            elif x > 110 and y > 420 and x < 120 and y < 450:
                 scroll_y -= 1
+            elif x > 110 and y > 420 and x < 120 and y < 450:
+                scroll_y += 1
 
             # Gestion de la réinitialisation
             elif x > 0 and y > 310 and x < 200 and y < 330:
