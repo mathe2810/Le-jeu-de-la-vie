@@ -9,7 +9,7 @@ from Class import *
 
 supprimer_statistiques()
 
-# Menu()
+Menu()
 
 # Création de la grilles
 # grille = Grille(200, 200)
