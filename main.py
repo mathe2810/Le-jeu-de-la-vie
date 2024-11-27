@@ -11,13 +11,8 @@ supprimer_statistiques()
 
 # Menu()
 
-<<<<<<< HEAD
-# Création de la grille
-grille = creer_grille_vide(30, 30)
-=======
 # Création de la grilles
 grille = creer_grille(250, 250)
->>>>>>> 9036bfe4831ad428f825ce2c662a7f415bf237f0
 
 # Initialisation de la fenêtre
 pygame.init()

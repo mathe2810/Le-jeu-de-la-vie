@@ -97,7 +97,7 @@ class Fenetre:
 
 
 class Moteur:
-    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form,Bool_sauvegarde, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement):
+    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form,Bool_sauvegarde, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement, input_text):
         self.Bool_pause = Bool_pause
         self.Bool_grille = Bool_grille
         self.Bool_reinit = Bool_reinit
@@ -115,6 +115,7 @@ class Moteur:
         self.coordHG = coordHG
         self.vitesse_deplacement = vitesse_deplacement
         self.Bool_sauvegarde = Bool_sauvegarde
+        self.input_text = input_text
 
     def gerer_souris(self,grille,Fenetre_util,Interface_util, click_delay=200):
         current_time = pygame.time.get_ticks()
@@ -419,3 +420,12 @@ class Forme():
 
     def ajouter_forme(self, forme, x, y):
         self.grille.grille[y:y+forme.shape[0], x:x+forme.shape[1]] = forme
+
+    def menu_forme(self):
+        rectangle = pygame.Rect(0, 0, self.Interface_util.fenetre.get_width(), self.Interface_util.fenetre.get_height())
+        pygame.draw.rect(self.Interface_util.fenetre, (0, 0, 0), rectangle)
+        texte = self.Interface_util.font.render('Veuillez choisir le nom de la forme :', True, (255, 255, 255))
+        self.Interface_util.fenetre.blit(texte, (10, 10))
+        texte_saisi = self.Interface_util.font.render(self.Moteur_util.input_text, True, (255, 255, 255))
+        self.Interface_util.fenetre.blit(texte_saisi, (10, 50))
+        pygame.display.flip()
