@@ -95,7 +95,6 @@ class Fenetre:
         self.couleur_vivant = couleur_vivant
         self.couleur_mort = couleur_mort
 
-
 class Moteur:
     def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form,Bool_sauvegarde,Bool_form_placement, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement, input_text, pos_souris_grille):
         self.Bool_pause = Bool_pause
@@ -241,16 +240,6 @@ class Moteur:
                 self.scroll_x -= self.vitesse_deplacement
             elif self.coordBD[1] + self.scroll_y > grille.n_lignes-1:
                 self.scroll_y -= self.vitesse_deplacement
-
-        
-
-            
-            
-
-        
-
-       
-
 
 class Interface:
     def __init__(self,fenetre,font):
@@ -423,7 +412,6 @@ class Interface:
                 end_pos = (Fenetre_util.taille_statistiques + x * Fenetre_util.taille_case, n_lignes * Fenetre_util.taille_case)
                 pygame.draw.line(self.fenetre, (128, 128, 128), start_pos, end_pos)
     
-
 class Forme():
     def __init__(self, grille, Fenetre_util, Moteur_util, Interface_util,formes,positions):
         self.grille = grille
@@ -436,7 +424,8 @@ class Forme():
     def sauvegarder_formes(self, filename):
         formes = {
             'carre': np.array([[1, 1], [1, 1]]),
-            'planeur': np.array([[0, 1, 0], [0, 0, 1], [1, 1, 1]])
+            'planeur': np.array([[0, 1, 0], [0, 0, 1], [1, 1, 1]]),
+            'clignotant': np.array([[1, 1, 1]])
         }
         np.savez_compressed(filename, **formes)
 

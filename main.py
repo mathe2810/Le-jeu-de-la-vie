@@ -1,13 +1,15 @@
 import pygame
 import numpy as np
-import time
-from Interface import *
-from Moteur import *
-from Sauvegarde import *
-from Analyse import *
-from Class import *
+from Grille import Grille
+from Interface import Interface
+from Moteur import Moteur
+from Forme import Forme
+from Fenetre import Fenetre
+from Analyse import Analyse
 
-supprimer_statistiques()
+Analyse_util = Analyse()
+
+# Analyse.supprimer_statistiques()
 
 # Menu()
 
@@ -33,9 +35,14 @@ Moteur_util = Moteur(False, False, False,False,False,False, 0, 0, 0, 0, (0,0), (
 
 Forme_util = Forme(grille, Fenetre_util, Moteur_util, Interface_util,0,0)
 
-nom_ouverture_fichier = "sauvegarde/form/"
 
-Forme_util.formes = Forme_util.charger_formes(nom_ouverture_fichier + 'form.npz')
+
+nom_ouverture_fichier_form = "sauvegarde/form/"
+nom_ouverture_fichier_grille = "sauvegarde/grille/"
+
+Forme_util.sauvegarder_formes(nom_ouverture_fichier_form + 'form.npz')
+
+Forme_util.formes = Forme_util.charger_formes(nom_ouverture_fichier_form + 'form.npz')
 
 
 
@@ -92,7 +99,7 @@ while running:
                     grille.evoluer()
                     Moteur_util.last_evolution_time = current_time
 
-                stocker_statistiques_csv(np.sum(grille.grille), grille.grille.size - np.sum(grille.grille), Moteur_util.iteration)
+                # Analyse_util.stocker_statistiques_csv(np.sum(grille.grille), grille.grille.size - np.sum(grille.grille), Moteur_util.iteration)
                 Moteur_util.iteration += 1
 
             # Gestion de la souris
