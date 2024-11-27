@@ -23,22 +23,22 @@ pygame.init()
 pygame.font.init()
 
 # Initialisation de la fenêtre
-Fenetre_util = Fenetre(250, 3,3, grille,(255, 255, 255),(0, 0, 0))
+Fenetre_util = Fenetre(250, 3, 3, grille, (255, 255, 255), (0, 0, 0))
 
-#Initialisation de l'interface graphique
+# Initialisation de l'interface graphique
 Interface_util = Interface(pygame.display.set_mode(Fenetre_util.taille_fenetre), pygame.font.SysFont('Arial', 20))
 
-#Initialisation du moteur
-Moteur_util = Moteur(False, False, False,False,False,False, 0, 0, 0, 0, (0,0), (0,0), pygame.time.Clock(), 160, 20, pygame.time.get_ticks(),5,"",(0,0))
+# Initialisation du moteur
+Moteur_util = Moteur(False, False, False, False, False, False, 0, 0, 0, 0, (0, 0), (0, 0), pygame.time.Clock(), 160, 20,
+                     pygame.time.get_ticks(), 5, "", (0, 0))
 
-Forme_util = Forme(grille, Fenetre_util, Moteur_util, Interface_util,0,0)
+Forme_util = Forme(grille, Fenetre_util, Moteur_util, Interface_util, 0, 0)
 
 nom_ouverture_fichier = "sauvegarde/form/"
 
+Forme_util.sauvegarder_formes(nom_ouverture_fichier + 'form.npz')
+
 Forme_util.formes = Forme_util.charger_formes(nom_ouverture_fichier + 'form.npz')
-
-
-
 
 # Boucle principale du jeu
 running = True
@@ -60,19 +60,18 @@ while running:
                         Moteur_util.Bool_form = False
                         print(f'Forme utilisé : {Moteur_util.input_text}')
                         Moteur_util.Bool_form_placement = True
-                        
-                    
+
+
                 elif event.key == pygame.K_BACKSPACE:
                     Moteur_util.input_text = Moteur_util.input_text[:-1]
                 else:
-                    Moteur_util.input_text += event.unicode   
+                    Moteur_util.input_text += event.unicode
 
-    
     if Moteur_util.Bool_form:
         Forme_util.menu_forme()
-    else :
+    else:
         if Moteur_util.Bool_sauvegarde:
-        
+
             rectangle = pygame.Rect(0, 0, Interface_util.fenetre.get_width(), Interface_util.fenetre.get_height())
             pygame.draw.rect(Interface_util.fenetre, (0, 0, 0), rectangle)
             texte = Interface_util.font.render('Veuillez choisir le nom de la sauvegarde :', True, (255, 255, 255))
@@ -81,7 +80,7 @@ while running:
             Interface_util.fenetre.blit(texte_saisi, (10, 50))
             pygame.display.flip()
 
-        else :
+        else:
             if Moteur_util.Bool_reinit:
                 grille.creer_grille_vide()
                 Moteur_util.Bool_reinit = False
@@ -92,22 +91,21 @@ while running:
                     grille.evoluer()
                     Moteur_util.last_evolution_time = current_time
 
-                stocker_statistiques_csv(np.sum(grille.grille), grille.grille.size - np.sum(grille.grille), Moteur_util.iteration)
+                stocker_statistiques_csv(np.sum(grille.grille), grille.grille.size - np.sum(grille.grille),
+                                         Moteur_util.iteration)
                 Moteur_util.iteration += 1
 
             # Gestion de la souris
-            Moteur_util.gerer_souris(grille, Fenetre_util, Interface_util, Forme_util) 
+            Moteur_util.gerer_souris(grille, Fenetre_util, Interface_util, Forme_util)
 
             # Dessin de la grille
             Interface_util.dessiner_grille(grille, Fenetre_util, Moteur_util)
-            
-            Interface_util.afficher_statistiques(grille,Fenetre_util, Moteur_util)
+
+            Interface_util.afficher_statistiques(grille, Fenetre_util, Moteur_util)
             pygame.display.flip()
 
             # Contrôler le taux de rafraîchissement
             Moteur_util.clock.tick(Moteur_util.fps)
-
-    
 
 pygame.quit()
 # statistiques = charger_statistiques_csv()
