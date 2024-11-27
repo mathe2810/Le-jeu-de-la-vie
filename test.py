@@ -12,11 +12,11 @@ supprimer_statistiques()
 # Menu()
 
 # Création de la grilles
-# grille = Grille(200, 200)
-# grille.creer_grille()
+grille = Grille(200, 200)
+grille.creer_grille()
 
-grille = Grille(10, 10)
-grille.charger_grille_npz('./sauvegarde/grille/test2.npz')
+# grille = Grille(10, 10)
+# grille.charger_grille_npz('./sauvegarde/grille/test2.npz')
 
 # Initialisation de pygame
 pygame.init()
