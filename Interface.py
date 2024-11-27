@@ -6,7 +6,7 @@ import math
 import pandas as pd
 
 
-#Fonction pour afficher le Menu avec Pygame:
+#Fonction pour afficher le Menu aP?KILvec Pygame:
 
 def Menu():
     pygame.init()
