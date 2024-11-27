@@ -12,45 +12,33 @@ supprimer_statistiques()
 # Menu()
 
 # Création de la grilles
-grille = creer_grille(250, 250)
+# grille = Grille(200, 200)
+# grille.creer_grille()
+
+grille = Grille(10, 10)
+grille.charger_grille_npz('./sauvegarde/grille/pluit_de_planeur.npz')
+
+# Initialisation de pygame
+pygame.init()
+pygame.font.init()
 
 # Initialisation de la fenêtre
-pygame.init()
-taille_statistiques = 250
-taille_case = 3
-couleur_vivant = (255, 255, 255)
-couleur_mort = (0, 0, 0)
-n_lignes, n_colonnes = grille.shape
-taille_case = verifier_proportions_grille(grille, taille_case, taille_statistiques)
+Fenetre_util = Fenetre(250, 3,3, grille,(255, 255, 255),(0, 0, 0))
 
-taille_case_final = taille_case
+#Initialisation de l'interface graphique
+Interface_util = Interface(pygame.display.set_mode(Fenetre_util.taille_fenetre), pygame.font.SysFont('Arial', 20))
 
-taille_fenetre = (n_colonnes * taille_case + taille_statistiques, n_lignes * taille_case)
-fenetre = pygame.display.set_mode(taille_fenetre)
+#Initialisation du moteur
+Moteur_util = Moteur(False, False, False,False,False,False, 0, 0, 0, 0, (0,0), (0,0), pygame.time.Clock(), 160, 20, pygame.time.get_ticks(),5,"",(0,0))
 
-# Initialisation de la police de caractères
-pygame.font.init()
-font = pygame.font.SysFont('Arial', 20)
+Forme_util = Forme(grille, Fenetre_util, Moteur_util, Interface_util,0,0)
 
-# Variables de contrôle
-Bool_pause = False
-Bool_grille = False
-Bool_reinit = False
-Bool_forme = False
+nom_ouverture_fichier = "sauvegarde/form/"
 
-last_click_time = 0
-iteration = 0
+Forme_util.formes = Forme_util.charger_formes(nom_ouverture_fichier + 'form.npz')
 
-scroll_x = 0
-scroll_y = 0
 
-# Initialisation de l'horloge
-clock = pygame.time.Clock()
-fps = 160  # Définir le nombre d'images par seconde
 
-# Variables pour contrôler le délai entre les évolutions
-evolution_delay = 20  # Délai en millisecondes
-last_evolution_time = pygame.time.get_ticks()
 
 # Boucle principale du jeu
 running = True
@@ -59,34 +47,65 @@ while running:
     for event in pygame.event.get():
         if event.type == pygame.QUIT:
             running = False
+        elif event.type == pygame.KEYDOWN:
+            if Moteur_util.Bool_sauvegarde | Moteur_util.Bool_form:
+                if event.key == pygame.K_RETURN:
+                    # Sauvegarder la grille avec le nom de fichier saisi
+                    if Moteur_util.Bool_sauvegarde:
+                        grille.sauvegarder_grille_npz(f"./sauvegarde/grille/{Moteur_util.input_text}.npz")
+                        Moteur_util.Bool_sauvegarde = False
+                        print(f'Grille sauvegardée sous le nom {Moteur_util.input_text}.npz')
+                        Moteur_util.input_text = ""
+                    else:
+                        Moteur_util.Bool_form = False
+                        print(f'Forme utilisé : {Moteur_util.input_text}')
+                        Moteur_util.Bool_form_placement = True
+                        
+                    
+                elif event.key == pygame.K_BACKSPACE:
+                    Moteur_util.input_text = Moteur_util.input_text[:-1]
+                else:
+                    Moteur_util.input_text += event.unicode   
 
-    if Bool_reinit:
-        grille = creer_grille_vide(200, 200)
-        Bool_reinit = False
+    
+    if Moteur_util.Bool_form:
+        Forme_util.menu_forme()
+    else :
+        if Moteur_util.Bool_sauvegarde:
+        
+            rectangle = pygame.Rect(0, 0, Interface_util.fenetre.get_width(), Interface_util.fenetre.get_height())
+            pygame.draw.rect(Interface_util.fenetre, (0, 0, 0), rectangle)
+            texte = Interface_util.font.render('Veuillez choisir le nom de la sauvegarde :', True, (255, 255, 255))
+            Interface_util.fenetre.blit(texte, (10, 10))
+            texte_saisi = Interface_util.font.render(Moteur_util.input_text, True, (255, 255, 255))
+            Interface_util.fenetre.blit(texte_saisi, (10, 50))
+            pygame.display.flip()
 
-    if not Bool_pause:
-        # Évolution de la grille à intervalles réguliers
-        if current_time - last_evolution_time >= evolution_delay:
-            grille = evoluer(grille)
-            last_evolution_time = current_time
+        else :
+            if Moteur_util.Bool_reinit:
+                grille.creer_grille_vide()
+                Moteur_util.Bool_reinit = False
 
-        stocker_statistiques_csv(np.sum(grille), grille.size - np.sum(grille), iteration)
-        sauvegarder_grille_npz(grille, 'grille.npz')
-        iteration += 1
+            if not Moteur_util.Bool_pause:
+                # Évolution de la grille à intervalles réguliers
+                if current_time - Moteur_util.last_evolution_time >= Moteur_util.evolution_delay:
+                    grille.evoluer()
+                    Moteur_util.last_evolution_time = current_time
 
-    # Gestion de la souris
-    grille, Bool_pause, Bool_grille, Bool_reinit, last_click_time, evolution_delay, taille_case, taille_case_final, fenetre, scroll_x, scroll_y = gerer_souris(
-        grille, taille_case, Bool_pause, Bool_grille, Bool_reinit , last_click_time, evolution_delay, taille_case_final, fenetre, taille_statistiques, scroll_x, scroll_y)  
+                stocker_statistiques_csv(np.sum(grille.grille), grille.grille.size - np.sum(grille.grille), Moteur_util.iteration)
+                Moteur_util.iteration += 1
 
-    # Dessin de la grille
-    dessiner_grille(grille, fenetre, taille_case, couleur_vivant, couleur_mort, Bool_grille,taille_statistiques,scroll_x,scroll_y)
-    # Affichage des statistiques
-    pygame.draw.rect(fenetre, (250, 250, 250), (0, 0, 250, taille_fenetre[1]))
-    afficher_statistiques(fenetre, font, grille, Bool_pause, Bool_grille, Bool_reinit,Bool_forme, taille_case, taille_case_final, evolution_delay, clock)
-    pygame.display.flip()
+            # Gestion de la souris
+            Moteur_util.gerer_souris(grille, Fenetre_util, Interface_util, Forme_util) 
 
-    # Contrôler le taux de rafraîchissement
-    clock.tick(fps)
+            # Dessin de la grille
+            Interface_util.dessiner_grille(grille, Fenetre_util, Moteur_util)
+            
+            Interface_util.afficher_statistiques(grille,Fenetre_util, Moteur_util)
+            pygame.display.flip()
+
+            # Contrôler le taux de rafraîchissement
+            Moteur_util.clock.tick(Moteur_util.fps)
 
     
 

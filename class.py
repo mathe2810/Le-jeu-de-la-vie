@@ -97,7 +97,7 @@ class Fenetre:
 
 
 class Moteur:
-    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form,Bool_sauvegarde, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement, input_text):
+    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form,Bool_sauvegarde,Bool_form_placement, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement, input_text, pos_souris_grille):
         self.Bool_pause = Bool_pause
         self.Bool_grille = Bool_grille
         self.Bool_reinit = Bool_reinit
@@ -116,100 +116,133 @@ class Moteur:
         self.vitesse_deplacement = vitesse_deplacement
         self.Bool_sauvegarde = Bool_sauvegarde
         self.input_text = input_text
+        self.pos_souris_grille = pos_souris_grille
+        self.Bool_form_placement = Bool_form_placement
 
-    def gerer_souris(self,grille,Fenetre_util,Interface_util, click_delay=200):
+    def gerer_souris(self,grille,Fenetre_util,Interface_util,Forme_util, click_delay=200):
         current_time = pygame.time.get_ticks()
+        
 
         if current_time - self.last_click_time < click_delay:
             return 0
 
+
         x, y = pygame.mouse.get_pos()
 
-        if pygame.mouse.get_pressed()[0]:
-            if x < 250:
-                #Gestion de la Pause
-                if x < 250 and y < 100 and x > 0 and y > 70:
-                    self.Bool_pause = not self.Bool_pause
+        if self.Bool_form_placement:
+            x -= Fenetre_util.taille_statistiques
+            x = x // Fenetre_util.taille_case
+            y = y // Fenetre_util.taille_case
+            x += self.scroll_x
+            y += self.scroll_y
+            self.pos_souris_grille = (x,y)
+            Forme_util.positions = {
+                    self.input_text: (self.pos_souris_grille[0], self.pos_souris_grille[1])
+                }
+            
+             # Afficher la prévisualisation de la forme en gris
+            if self.input_text in Forme_util.formes:
+                forme = Forme_util.formes[self.input_text]
+                for i in range(forme.shape[0]):
+                    for j in range(forme.shape[1]):
+                        if forme[i, j] == 1:
+                            rect = pygame.Rect(
+                                (x + j - self.scroll_x) * Fenetre_util.taille_case + Fenetre_util.taille_statistiques,
+                                (y + i - self.scroll_y) * Fenetre_util.taille_case,
+                                Fenetre_util.taille_case,
+                                Fenetre_util.taille_case
+                            )
+                            pygame.draw.rect(Interface_util.fenetre, (128, 128, 128), rect)
 
-                #Gestion de l'évolution
-                elif x > 200 and y > 100 and x < 220 and y < 130:
-                    self.evolution_delay += 10
-                elif x > 220 and y > 100 and x < 240 and y < 130:
-                    self.evolution_delay -= 10
-                
-                #Gestion de la grille
-                elif x > 0 and y > 160 and x < 250 and y < 190:
-                    self.Bool_grille = not self.Bool_grille
 
-                #Gestion du zoom
-                elif x > 200 and y > 190 and x < 220 and y < 220:
-                    Fenetre_util.taille_case += 1
-                elif x > 220 and y > 190 and x < 240 and y < 220:
-                    if Fenetre_util.taille_case == Fenetre_util.taille_case_final:
-                        Fenetre_util.taille_case_final -= 1
-                        Fenetre_util.taille_case -=1
-                        if Fenetre_util.taille_case_final == 0:
-                            Fenetre_util.taille_case_final = 1
-                            Fenetre_util.taille_case = 1
-                        grille.agrandir_grille(Fenetre_util, Interface_util)
-                        
+            if pygame.mouse.get_pressed()[0]:
+                Forme_util.afficher_formes()
+                pygame.time.wait(200)
+                self.input_text = ""
+                self.Bool_form_placement = False
+        else:
+            if pygame.mouse.get_pressed()[0]:
+                if x < 250:
+                    #Gestion de la Pause
+                    if x < 250 and y < 100 and x > 0 and y > 70:
+                        self.Bool_pause = not self.Bool_pause
+
+                    #Gestion de l'évolution
+                    elif x > 200 and y > 100 and x < 220 and y < 130:
+                        self.evolution_delay += 10
+                    elif x > 220 and y > 100 and x < 240 and y < 130:
+                        self.evolution_delay -= 10
+                    
+                    #Gestion de la grille
+                    elif x > 0 and y > 160 and x < 250 and y < 190:
+                        self.Bool_grille = not self.Bool_grille
+
+                    #Gestion du zoom
+                    elif x > 200 and y > 190 and x < 220 and y < 220:
+                        Fenetre_util.taille_case += 1
+                    elif x > 220 and y > 190 and x < 240 and y < 220:
+                        if Fenetre_util.taille_case == Fenetre_util.taille_case_final:
+                            Fenetre_util.taille_case_final -= 1
+                            Fenetre_util.taille_case -=1
+                            if Fenetre_util.taille_case_final == 0:
+                                Fenetre_util.taille_case_final = 1
+                                Fenetre_util.taille_case = 1
+                            grille.agrandir_grille(Fenetre_util, Interface_util)
+                            
+                        else:
+                            Fenetre_util.taille_case -= 1
+
+                            0, 340, 250, 30
+
+                    elif x > 0 and y > 340 and x < 250 and y < 370:
+                            self.Bool_form = not self.Bool_form
+
+                    # Gestion du scroll
+                    elif x > 70 and y > 405 and x < 90 and y < 415:
+                        self.scroll_x = self.scroll_x - self.vitesse_deplacement
+                    elif x > 140 and y > 405 and x < 160 and y < 415:
+                        self.scroll_x = self.scroll_x + self.vitesse_deplacement
+                    elif x > 110 and y > 370 and x < 120 and y < 400:
+                        self.scroll_y -= self.vitesse_deplacement
+                    elif x > 110 and y > 420 and x < 120 and y < 450:
+                        self.scroll_y += self.vitesse_deplacement
+
+
+                    # Gestion de la réinitialisation
+                    elif x > 0 and y > 310 and x < 200 and y < 330:
+                        self.Bool_reinit = not self.Bool_reinit
+
+                    # Gestion de la sauvegarde
+                    elif x > 0 and y > 480 and x < 250 and y < 510:
+                        self.Bool_sauvegarde = not self.Bool_sauvegarde
+                    
+
+                # Gestion du clic sur la grille
+                else:
+                    if self.Bool_form_placement:
+                        Forme_util.positions = {
+                                self.input_text: (self.pos_souris_grille[0], self.pos_souris_grille[1])
+                            }
                     else:
-                        Fenetre_util.taille_case -= 1
+                        x -= Fenetre_util.taille_statistiques
+                        x = x // Fenetre_util.taille_case
+                        y = y // Fenetre_util.taille_case
+                        x += self.scroll_x
+                        y += self.scroll_y
+                        self.pos_souris_grille = (x,y)
+                        grille.grille[y, x] = 1 - grille.grille[y, x]
+                self.last_click_time = current_time
+            
+            if self.coordHG[0] + self.scroll_x < 0:
+                self.scroll_x += self.vitesse_deplacement
+            elif self.coordHG[1] + self.scroll_y < 0:
+                self.scroll_y += self.vitesse_deplacement
+            elif self.coordBD[0] + self.scroll_x > grille.n_colonnes-1:
+                self.scroll_x -= self.vitesse_deplacement
+            elif self.coordBD[1] + self.scroll_y > grille.n_lignes-1:
+                self.scroll_y -= self.vitesse_deplacement
 
-                        0, 340, 250, 30
-
-                elif x > 0 and y > 340 and x < 250 and y < 370:
-                        self.Bool_form = not self.Bool_form
-
-                # Gestion du scroll
-                elif x > 70 and y > 405 and x < 90 and y < 415:
-                    self.scroll_x = self.scroll_x - self.vitesse_deplacement
-                elif x > 140 and y > 405 and x < 160 and y < 415:
-                    self.scroll_x = self.scroll_x + self.vitesse_deplacement
-                elif x > 110 and y > 370 and x < 120 and y < 400:
-                    self.scroll_y -= self.vitesse_deplacement
-                elif x > 110 and y > 420 and x < 120 and y < 450:
-                    self.scroll_y += self.vitesse_deplacement
-
-
-                # Gestion de la réinitialisation
-                elif x > 0 and y > 310 and x < 200 and y < 330:
-                    self.Bool_reinit = not self.Bool_reinit
-
-                # Gestion de la vitesse de déplacement
-                elif x > 220 and y > 450 and x < 240 and y < 480:
-                    self.vitesse_deplacement += 1
-                elif x > 240 and y > 450 and x < 260 and y < 480:
-                    self.vitesse_deplacement -= 1
-
-                # Gestion de la sauvegarde
-                elif x > 0 and y > 480 and x < 250 and y < 510:
-                    self.Bool_sauvegarde = not self.Bool_sauvegarde
-                
-
-            # Gestion du clic sur la grille
-            else:
-                x -= Fenetre_util.taille_statistiques
-                x = x // Fenetre_util.taille_case
-                y = y // Fenetre_util.taille_case
-                x += self.scroll_x
-                y += self.scroll_y
-                grille.grille[y, x] = 1 - grille.grille[y, x]
-            self.last_click_time = current_time
         
-        if self.coordHG[0] + self.scroll_x < 0:
-            self.scroll_x += self.vitesse_deplacement
-        elif self.coordHG[1] + self.scroll_y < 0:
-            self.scroll_y += self.vitesse_deplacement
-        elif self.coordBD[0] + self.scroll_x > grille.n_colonnes-1:
-            self.scroll_x -= self.vitesse_deplacement
-        elif self.coordBD[1] + self.scroll_y > grille.n_lignes-1:
-            self.scroll_y -= self.vitesse_deplacement
-
-        if self.vitesse_deplacement < 1:
-            self.vitesse_deplacement = 1
-        elif self.vitesse_deplacement > 5:
-            self.vitesse_deplacement = 5
 
             
             
@@ -314,8 +347,8 @@ class Interface:
         self.fenetre.blit(texte_fleche_haut, (110, 370))
         self.fenetre.blit(texte_fleche_bas, (110, 420))
         self.fenetre.blit(texte_deplacement_vitesse, (10, 450))
-        self.fenetre.blit(texte_plus_deplacement, (220, 450))
-        self.fenetre.blit(texte_moins_deplacement, (240, 450))
+        # self.fenetre.blit(texte_plus_deplacement, (220, 450))
+        # self.fenetre.blit(texte_moins_deplacement, (240, 450))
         self.fenetre.blit(texte_sauvegarde, (60, 480))
 
     def dessiner_grille(self, grille, Fenetre_util, Moteur_util):
@@ -392,20 +425,13 @@ class Interface:
     
 
 class Forme():
-    def __init__(self, grille, Fenetre_util, Moteur_util, Interface_util):
+    def __init__(self, grille, Fenetre_util, Moteur_util, Interface_util,formes,positions):
         self.grille = grille
         self.Fenetre_util = Fenetre_util
         self.Moteur_util = Moteur_util
         self.Interface_util = Interface_util
-
-    def carre(self, x, y, taille):
-        self.grille.grille[y:y+taille, x:x+taille] = 1
-
-    def planeur(self, x, y):
-        planeur = np.array([[0, 1, 0],
-                            [0, 0, 1],
-                            [1, 1, 1]])
-        self.grille.grille[y:y+3, x:x+3] = planeur
+        self.formes = formes
+        self.positions = positions  
 
     def sauvegarder_formes(self, filename):
         formes = {
@@ -419,7 +445,17 @@ class Forme():
         return data
 
     def ajouter_forme(self, forme, x, y):
-        self.grille.grille[y:y+forme.shape[0], x:x+forme.shape[1]] = forme
+        if y + forme.shape[0] <= self.grille.grille.shape[0] and x + forme.shape[1] <= self.grille.grille.shape[1]:
+            self.grille.grille[y:y+forme.shape[0], x:x+forme.shape[1]] = forme
+        else:
+            print(f"Erreur : La forme {forme} dépasse les limites de la grille.")
+
+
+    def afficher_formes(self):
+        print(self.positions)
+        for forme_name, position in self.positions.items():
+            if forme_name in self.formes:
+                self.ajouter_forme(self.formes[forme_name], position[0], position[1])
 
     def menu_forme(self):
         rectangle = pygame.Rect(0, 0, self.Interface_util.fenetre.get_width(), self.Interface_util.fenetre.get_height())
@@ -428,4 +464,23 @@ class Forme():
         self.Interface_util.fenetre.blit(texte, (10, 10))
         texte_saisi = self.Interface_util.font.render(self.Moteur_util.input_text, True, (255, 255, 255))
         self.Interface_util.fenetre.blit(texte_saisi, (10, 50))
+
+        # Afficher les formes disponibles
+        y_offset = 100
+        for forme_name, forme in self.formes.items():
+            texte_forme = self.Interface_util.font.render(forme_name, True, (255, 255, 255))
+            self.Interface_util.fenetre.blit(texte_forme, (10, y_offset))
+
+            # Dessiner la forme à côté du nom
+            forme_surface = pygame.Surface((50, 50))
+            forme_surface.fill((0, 0, 0))  # Fond noir pour la forme
+            for i in range(forme.shape[0]):
+                for j in range(forme.shape[1]):
+                    if forme[i, j] == 1:
+                        rect = pygame.Rect(j * 10, i * 10, 10, 10)
+                        pygame.draw.rect(forme_surface, (255, 255, 255), rect)
+            self.Interface_util.fenetre.blit(forme_surface, (200, y_offset - 10))
+
+            y_offset += 60
+             
         pygame.display.flip()
