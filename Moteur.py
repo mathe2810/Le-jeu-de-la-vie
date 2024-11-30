@@ -133,13 +133,15 @@ class Moteur:
                         grille.nb2_naissance += 1
                     
                     elif x > 220 and y > 570 and x < 240 and y < 590:
-                        grille.nb1_naissance -= 1
-                        grille.nb2_naissance -= 1
+                        if grille.nb1_naissance > 0 and grille.nb2_naissance > 0:
+                            grille.nb1_naissance -= 1
+                            grille.nb2_naissance -= 1
                     
                     elif x > 200 and y > 600 and x < 220 and y < 620:
                         grille.nb_survie += 1
                     elif x > 220 and y > 600 and x < 240 and y < 620:
-                        grille.nb_survie -= 1
+                        if grille.nb_survie > 0:
+                            grille.nb_survie -= 1
                     
 
                 # Gestion du clic sur la grille
