@@ -75,6 +75,20 @@ class Interface:
         texte_plus_deplacement = self.font.render(f'+', True, (0, 0, 0))
         texte_moins_deplacement = self.font.render(f'-', True, (0, 0, 0))
 
+        if Moteur_util.Bool_reinit_ale == False:
+            texte_reinit_aleatoire = self.font.render(f'Réinitialiser aléatoirement', True, (255, 255, 255))
+            pygame.draw.rect(self.fenetre, (0, 0, 0), (0, 510, 250, 30))
+        else:
+            texte_reinit_aleatoire = self.font.render(f'Réinitialiser aléatoirement', True, (0,0,0))
+            pygame.draw.rect(self.fenetre, (255, 255, 255), (0, 510, 250, 30))
+
+        texte_changement_regle = self.font.render(f'Changer les règles :', True, (0, 0, 0))
+        texte_naissance = self.font.render(f'Naissance : {grille.nb1_naissance} | {grille.nb2_naissance}', True, (0, 0, 0))
+        texte_naissance_plus = self.font.render(f'+', True, (0, 0, 0))
+        texte_naissance_moins = self.font.render(f'-', True, (0, 0, 0))
+        texte_survie = self.font.render(f'Survie : {grille.nb_survie}', True, (0, 0, 0))
+        texte_survie_plus = self.font.render(f'+', True, (0, 0, 0))
+        texte_survie_moins = self.font.render(f'-', True, (0, 0, 0))
 
         self.fenetre.blit(texte_vivants, (10, 10))
         self.fenetre.blit(texte_souris, (10, 40))
@@ -100,6 +114,15 @@ class Interface:
         # self.fenetre.blit(texte_plus_deplacement, (220, 450))
         # self.fenetre.blit(texte_moins_deplacement, (240, 450))
         self.fenetre.blit(texte_sauvegarde, (60, 480))
+        self.fenetre.blit(texte_reinit_aleatoire, (10, 510))
+        self.fenetre.blit(texte_changement_regle, (10, 540))
+        self.fenetre.blit(texte_naissance, (10, 570))
+        self.fenetre.blit(texte_naissance_plus, (200, 570))
+        self.fenetre.blit(texte_naissance_moins, (220, 570))
+        self.fenetre.blit(texte_survie, (10, 600))
+        self.fenetre.blit(texte_survie_plus, (200, 600))
+        self.fenetre.blit(texte_survie_moins, (220, 600))
+
 
     def dessiner_grille(self, grille, Fenetre_util, Moteur_util):
         n_lignes, n_colonnes = grille.grille.shape

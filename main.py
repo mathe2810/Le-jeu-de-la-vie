@@ -14,10 +14,10 @@ Analyse_util = Analyse()
 # Menu()
 
 # Création de la grilles
-# grille = Grille(200, 200)
+# grille = Grille(10, 10,3,2,3)
 # grille.creer_grille()
 
-grille = Grille(10, 10)
+grille = Grille(10, 10,3,2,3)
 grille.charger_grille_npz('./sauvegarde/grille/pluit_de_planeur.npz')
 
 # Initialisation de pygame
@@ -31,7 +31,7 @@ Fenetre_util = Fenetre(250, 3,3, grille,(255, 255, 255),(0, 0, 0))
 Interface_util = Interface(pygame.display.set_mode(Fenetre_util.taille_fenetre), pygame.font.SysFont('Arial', 20))
 
 #Initialisation du moteur
-Moteur_util = Moteur(False, False, False,False,False,False, 0, 0, 0, 0, (0,0), (0,0), pygame.time.Clock(), 160, 20, pygame.time.get_ticks(),5,"",(0,0))
+Moteur_util = Moteur(False, False, False,False,False,False,False, 0, 0, 0, 0, (0,0), (0,0), pygame.time.Clock(), 160, 20, pygame.time.get_ticks(),5,"",(0,0))
 
 Forme_util = Forme(grille, Fenetre_util, Moteur_util, Interface_util,0,0)
 
@@ -92,6 +92,10 @@ while running:
             if Moteur_util.Bool_reinit:
                 grille.creer_grille_vide()
                 Moteur_util.Bool_reinit = False
+            
+            if Moteur_util.Bool_reinit_ale:
+                grille.creer_grille()
+                Moteur_util.Bool_reinit_ale = False
 
             if not Moteur_util.Bool_pause:
                 # Évolution de la grille à intervalles réguliers

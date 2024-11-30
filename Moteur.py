@@ -3,7 +3,7 @@ import pygame
 import math
 
 class Moteur:
-    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form,Bool_sauvegarde,Bool_form_placement, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement, input_text, pos_souris_grille):
+    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form,Bool_sauvegarde,Bool_form_placement, Bool_reinit_ale, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement, input_text, pos_souris_grille):
         self.Bool_pause = Bool_pause
         self.Bool_grille = Bool_grille
         self.Bool_reinit = Bool_reinit
@@ -24,6 +24,7 @@ class Moteur:
         self.input_text = input_text
         self.pos_souris_grille = pos_souris_grille
         self.Bool_form_placement = Bool_form_placement
+        self.Bool_reinit_ale = Bool_reinit_ale
 
     def gerer_souris(self,grille,Fenetre_util,Interface_util,Forme_util, click_delay=200):
         current_time = pygame.time.get_ticks()
@@ -101,7 +102,6 @@ class Moteur:
                         else:
                             Fenetre_util.taille_case -= 1
 
-                            0, 340, 250, 30
 
                     elif x > 0 and y > 340 and x < 250 and y < 370:
                             self.Bool_form = not self.Bool_form
@@ -124,6 +124,22 @@ class Moteur:
                     # Gestion de la sauvegarde
                     elif x > 0 and y > 480 and x < 250 and y < 510:
                         self.Bool_sauvegarde = not self.Bool_sauvegarde
+
+                    elif x > 0 and y > 510 and x < 250 and y < 540:
+                        self.Bool_reinit_ale = not self.Bool_reinit_ale
+
+                    elif x > 200 and y > 570 and x < 220 and y < 590:
+                        grille.nb1_naissance += 1
+                        grille.nb2_naissance += 1
+                    
+                    elif x > 220 and y > 570 and x < 240 and y < 590:
+                        grille.nb1_naissance -= 1
+                        grille.nb2_naissance -= 1
+                    
+                    elif x > 200 and y > 600 and x < 220 and y < 620:
+                        grille.nb_survie += 1
+                    elif x > 220 and y > 600 and x < 240 and y < 620:
+                        grille.nb_survie -= 1
                     
 
                 # Gestion du clic sur la grille

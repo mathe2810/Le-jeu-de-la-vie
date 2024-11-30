@@ -3,10 +3,13 @@ import pygame
 import math
 
 class Grille:
-    def __init__(self, n_lignes, n_colonnes):
+    def __init__(self, n_lignes, n_colonnes,nb_survie, nb1_naissance, nb2_naissance):
         self.n_lignes = n_lignes
         self.n_colonnes = n_colonnes
         self.grille = np.zeros((n_lignes, n_colonnes), dtype=int)
+        self.nb_survie = nb_survie
+        self.nb1_naissance = nb1_naissance
+        self.nb2_naissance = nb2_naissance
 
     # Fonction qui permet de créer une grille aléatoire de taille n_lignes x n_colonnes
     def creer_grille(self):
@@ -30,8 +33,10 @@ class Grille:
     def evoluer(self):
         # Calculer la somme des voisins vivants directement avec des décalages
         voisins = (
-            np.roll(self.grille, 1, axis=0) + np.roll(self.grille, -1, axis=0) +
-            np.roll(self.grille, 1, axis=1) + np.roll(self.grille, -1, axis=1) +
+            np.roll(self.grille, 1, axis=0) + 
+            np.roll(self.grille, -1, axis=0) +
+            np.roll(self.grille, 1, axis=1) + 
+            np.roll(self.grille, -1, axis=1) +
             np.roll(np.roll(self.grille, 1, axis=0), 1, axis=1) +
             np.roll(np.roll(self.grille, 1, axis=0), -1, axis=1) +
             np.roll(np.roll(self.grille, -1, axis=0), 1, axis=1) +
@@ -39,7 +44,7 @@ class Grille:
         )
 
         # Application des règles du jeu de la vie
-        nouvelle_grille = (self.grille == 1) & ((voisins == 2) | (voisins == 3)) | (self.grille == 0) & (voisins == 3)
+        nouvelle_grille = (self.grille == 1) & ((voisins == self.nb1_naissance) | (voisins == self.nb2_naissance)) | (self.grille == 0) & (voisins == self.nb_survie)
 
         # Mise à jour de la grille
         self.grille = nouvelle_grille.astype(int)
@@ -71,8 +76,9 @@ class Grille:
             Fenetre_util.taille_case = 800 // self.n_lignes
         if self.n_colonnes * Fenetre_util.taille_case + Fenetre_util.taille_statistiques < 250:
             Fenetre_util.taille_case = 250 // self.n_colonnes
-        if self.n_lignes * Fenetre_util.taille_case < 600:
-            Fenetre_util.taille_case = 600 // self.n_lignes
+        if self.n_lignes * Fenetre_util.taille_case < 800:
+            Fenetre_util.taille_case = 800 // self.n_lignes
+        
 
         Fenetre_util.taille_case_final = Fenetre_util.taille_case
     
