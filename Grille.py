@@ -1,7 +1,6 @@
 import numpy as np
 import pygame
 import math
-from scipy.signal import convolve2d
 
 class Grille:
     def __init__(self, n_lignes, n_colonnes):

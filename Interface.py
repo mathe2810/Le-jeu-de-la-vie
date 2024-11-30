@@ -1,7 +1,6 @@
 import numpy as np
 import pygame
 import math
-from scipy.signal import convolve2d
 
 class Interface:
     def __init__(self,fenetre,font):

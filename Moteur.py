@@ -1,7 +1,6 @@
 import numpy as np
 import pygame
 import math
-from scipy.signal import convolve2d
 
 class Moteur:
     def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form,Bool_sauvegarde,Bool_form_placement, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement, input_text, pos_souris_grille):
@@ -37,6 +36,9 @@ class Moteur:
         x, y = pygame.mouse.get_pos()
 
         if self.Bool_form_placement:
+            if x < 250 and pygame.mouse.get_pressed()[0]:
+                print('impossible de placer une forme dans le menu')
+                return 0
             x -= Fenetre_util.taille_statistiques
             x = x // Fenetre_util.taille_case
             y = y // Fenetre_util.taille_case
