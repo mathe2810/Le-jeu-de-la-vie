@@ -78,6 +78,7 @@ while True:
     if action == "nouvelle_partie":
         grille = Grille(largeur, hauteur, 3, 2, 3)
         grille.verifier_proportions_grille(Fenetre_util)
+        grille.creer_grille()
         running = True
 
     if action == "charger_sauvegarde":
@@ -173,6 +174,10 @@ while True:
                 if Moteur_util.Bool_reinit:
                     grille.creer_grille_vide()
                     Moteur_util.Bool_reinit = False
+
+                if Moteur_util.Bool_reinit_ale:
+                    grille.creer_grille()
+                    Moteur_util.Bool_reinit_ale = False
 
                 if not Moteur_util.Bool_pause:
                     if current_time - Moteur_util.last_evolution_time >= Moteur_util.evolution_delay:
