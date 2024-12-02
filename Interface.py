@@ -151,6 +151,8 @@ class Interface:
 
         #Derneir point de la grille
         Moteur_util.coordBD = caclCoordBD
+
+        # Moteur_util.gerer_taille_non_comforme(Fenetre_util, self)
         
 
         # Filtrer les cellules vivantes

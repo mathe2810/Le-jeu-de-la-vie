@@ -78,6 +78,9 @@ class Grille:
             Fenetre_util.taille_case = 250 // self.n_colonnes
         if self.n_lignes * Fenetre_util.taille_case < 800:
             Fenetre_util.taille_case = 800 // self.n_lignes
+
+        if Fenetre_util.taille_case == 0:
+            Fenetre_util.taille_case = 1
         
 
         Fenetre_util.taille_case_final = Fenetre_util.taille_case

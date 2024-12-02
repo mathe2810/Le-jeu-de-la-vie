@@ -64,8 +64,8 @@ def afficher_menu_principal():
     while True:
         action = afficher_menu(Interface_util.fenetre)
         if action == "nouvelle_partie":
-            largeur, hauteur = afficher_formulaire_dimensions(Interface_util.fenetre, Interface_util.font)
-            return "nouvelle_partie", largeur, hauteur
+            taille = afficher_formulaire_dimensions(Interface_util.fenetre, Interface_util.font)
+            return "nouvelle_partie", taille, taille
         elif action == "charger_sauvegarde":
             return "charger_sauvegarde", None, None
         elif action == "quitter":

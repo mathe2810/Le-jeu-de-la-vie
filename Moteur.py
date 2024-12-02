@@ -26,6 +26,13 @@ class Moteur:
         self.Bool_form_placement = Bool_form_placement
         self.Bool_reinit_ale = Bool_reinit_ale
 
+    # def gerer_taille_non_comforme(self, Fenetre_util, Interface_util):
+    #     if (self.coordBD[0] - self.scroll_x) * Fenetre_util.taille_case + Fenetre_util.taille_statistiques+2 < Interface_util.fenetre.get_width() and  (self.coordBD[1] - self.scroll_y) * Fenetre_util.taille_case < Interface_util.fenetre.get_height():
+    #         print((self.coordBD[0] - self.scroll_x) * Fenetre_util.taille_case + Fenetre_util.taille_statistiques+2," | ", Interface_util.fenetre.get_width())
+    #         # Fenetre_util.taille_case += 1
+            
+        
+
     def gerer_souris(self,grille,Fenetre_util,Interface_util,Forme_util, click_delay=200):
         current_time = pygame.time.get_ticks()
         

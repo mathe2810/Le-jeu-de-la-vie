@@ -1,20 +1,17 @@
 import pygame
 def afficher_formulaire_dimensions(fenetre, font):
-    largeur = ""
-    hauteur = ""
+    input_text = ""
     input_active = None
     couleur_inactive = (255, 255, 255)
     couleur_texte = (0, 0, 0)
     couleur_bouton = (255, 0, 0)
 
     # Taille des rectangles
-    rect_largeur = pygame.Rect(0, 0, 300, 50)
-    rect_hauteur = pygame.Rect(0, 0, 300, 50)
+    rect_formulaire = pygame.Rect(0, 0, 300, 50)
     bouton_valider = pygame.Rect(0, 0, 300, 50)
 
     # Centrer les rectangles
-    rect_largeur.center = (fenetre.get_width() // 2, fenetre.get_height() // 2 - 60)
-    rect_hauteur.center = (fenetre.get_width() // 2, fenetre.get_height() // 2)
+    rect_formulaire.center = (fenetre.get_width() // 2, fenetre.get_height() // 2)
     bouton_valider.center = (fenetre.get_width() // 2, fenetre.get_height() // 2 + 60)
 
     while True:
@@ -24,17 +21,14 @@ def afficher_formulaire_dimensions(fenetre, font):
         texte_valider = font.render("Valider", True, couleur_texte)
 
         # Centrer les textes
-        fenetre.blit(texte_largeur, (rect_largeur.x - texte_largeur.get_width() - 10, rect_largeur.y + (rect_largeur.height - texte_largeur.get_height()) // 2))
-        fenetre.blit(texte_hauteur, (rect_hauteur.x - texte_hauteur.get_width() - 10, rect_hauteur.y + (rect_hauteur.height - texte_hauteur.get_height()) // 2))
+        fenetre.blit(texte_largeur, (rect_formulaire.x - texte_largeur.get_width() - 10, rect_formulaire.y + (rect_formulaire.height - texte_largeur.get_height()) // 2))
+        fenetre.blit(texte_hauteur, (rect_formulaire.x - texte_hauteur.get_width() - 10, rect_formulaire.y + (rect_formulaire.height - texte_hauteur.get_height()) // 2))
 
-        pygame.draw.rect(fenetre, couleur_inactive, rect_largeur)
-        pygame.draw.rect(fenetre, couleur_inactive, rect_hauteur)
+        pygame.draw.rect(fenetre, couleur_inactive, rect_formulaire)
         pygame.draw.rect(fenetre, couleur_bouton, bouton_valider)
 
-        texte_largeur_saisi = font.render(largeur, True, couleur_texte)
-        texte_hauteur_saisi = font.render(hauteur, True, couleur_texte)
-        fenetre.blit(texte_largeur_saisi, (rect_largeur.x + 5, rect_largeur.y + 5))
-        fenetre.blit(texte_hauteur_saisi, (rect_hauteur.x + 5, rect_hauteur.y + 5))
+        texte_formulaire_saisi = font.render(input_text, True, couleur_texte)
+        fenetre.blit(texte_formulaire_saisi, (rect_formulaire.x + 5, rect_formulaire.y + 5))
         fenetre.blit(texte_valider, (bouton_valider.x + (bouton_valider.width - texte_valider.get_width()) // 2, bouton_valider.y + (bouton_valider.height - texte_valider.get_height()) // 2))
 
         pygame.display.flip()
@@ -44,23 +38,18 @@ def afficher_formulaire_dimensions(fenetre, font):
                 pygame.quit()
                 exit()
             elif event.type == pygame.MOUSEBUTTONDOWN:
-                if rect_largeur.collidepoint(event.pos):
-                    input_active = "largeur"
-                elif rect_hauteur.collidepoint(event.pos):
-                    input_active = "hauteur"
+                if rect_formulaire.collidepoint(event.pos):
+                    input_active = "formulaire"
                 elif bouton_valider.collidepoint(event.pos):
-                    return int(largeur), int(hauteur)
+                    return int(input_text)
             elif event.type == pygame.KEYDOWN:
-                if input_active == "largeur":
+                if input_active == "formulaire":
                     if event.key == pygame.K_BACKSPACE:
-                        largeur = largeur[:-1]
+                        input_text = input_text[:-1]
                     else:
-                        largeur += event.unicode
-                elif input_active == "hauteur":
-                    if event.key == pygame.K_BACKSPACE:
-                        hauteur = hauteur[:-1]
-                    else:
-                        hauteur += event.unicode
+                        input_text += event.unicode
+
+
 def afficher_menu(fenetre):
     pygame.init()
     font = pygame.font.SysFont('Arial', 40)
