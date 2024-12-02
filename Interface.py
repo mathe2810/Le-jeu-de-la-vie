@@ -85,11 +85,13 @@ class Interface:
             pygame.draw.rect(self.fenetre, (255, 255, 255), (0, 510, 250, 30))
 
         texte_changement_regle = self.font.render(f'Changer les règles :', True, (0, 0, 0))
-        texte_naissance = self.font.render(f'Naissance : {grille.nb1_naissance} | {grille.nb2_naissance}', True,
-                                           (0, 0, 0))
-        texte_naissance_plus = self.font.render(f'+', True, (0, 0, 0))
-        texte_naissance_moins = self.font.render(f'-', True, (0, 0, 0))
-        texte_survie = self.font.render(f'Survie : {grille.nb_survie}', True, (0, 0, 0))
+        texte_naissance1 = self.font.render(f'Survie 1 : {grille.nb1_naissance}', True,(0, 0, 0))
+        texte_naissance_plus1 = self.font.render(f'+', True, (0, 0, 0))
+        texte_naissance_moins1 = self.font.render(f'-', True, (0, 0, 0))
+        texte_naissance2 = self.font.render(f'Survie 2 : {grille.nb2_naissance}', True,(0, 0, 0))
+        texte_naissance_plus2 = self.font.render(f'+', True, (0, 0, 0))
+        texte_naissance_moins2 = self.font.render(f'-', True, (0, 0, 0))
+        texte_survie = self.font.render(f'Naissance : {grille.nb_survie}', True, (0, 0, 0))
         texte_survie_plus = self.font.render(f'+', True, (0, 0, 0))
         texte_survie_moins = self.font.render(f'-', True, (0, 0, 0))
 
@@ -119,12 +121,15 @@ class Interface:
         self.fenetre.blit(texte_sauvegarde, (60, 480))
         self.fenetre.blit(texte_reinit_aleatoire, (10, 510))
         self.fenetre.blit(texte_changement_regle, (10, 540))
-        self.fenetre.blit(texte_naissance, (10, 570))
-        self.fenetre.blit(texte_naissance_plus, (200, 570))
-        self.fenetre.blit(texte_naissance_moins, (220, 570))
-        self.fenetre.blit(texte_survie, (10, 600))
-        self.fenetre.blit(texte_survie_plus, (200, 600))
-        self.fenetre.blit(texte_survie_moins, (220, 600))
+        self.fenetre.blit(texte_naissance1, (10, 570))
+        self.fenetre.blit(texte_naissance_plus1, (200, 570))
+        self.fenetre.blit(texte_naissance_moins1, (220, 570))
+        self.fenetre.blit(texte_survie, (10, 630))
+        self.fenetre.blit(texte_survie_plus, (200, 630))
+        self.fenetre.blit(texte_survie_moins, (220, 630))
+        self.fenetre.blit(texte_naissance2, (10, 600))
+        self.fenetre.blit(texte_naissance_plus2, (200, 600))
+        self.fenetre.blit(texte_naissance_moins2, (220, 600))
 
     def dessiner_grille(self, grille, Fenetre_util, Moteur_util):
         n_lignes, n_colonnes = grille.grille.shape
