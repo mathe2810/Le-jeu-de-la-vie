@@ -3,7 +3,7 @@ import pygame
 import math
 
 class Interface:
-    def __init__(self,fenetre,font):
+    def __init__(self, fenetre, font):
         self.fenetre = fenetre
         self.font = font
 
@@ -39,7 +39,8 @@ class Interface:
         texte_moins = self.font.render(f'-', True, (0, 0, 0))
         texte_taille_grille = self.font.render(f'Taille grille: {grille.grille.shape}', True, (0, 0, 0))
         texte_taille_case = self.font.render(f'Taille case: {Fenetre_util.taille_case}', True, (0, 0, 0))
-        texte_taille_finale_case = self.font.render(f'Taille finale case: {Fenetre_util.taille_case_final}', True, (0, 0, 0))
+        texte_taille_finale_case = self.font.render(f'Taille finale case: {Fenetre_util.taille_case_final}', True,
+                                                    (0, 0, 0))
 
         if Moteur_util.Bool_reinit == False:
             texte_reinitialiser = self.font.render(f'Reinitialiser', True, (255, 255, 255))
@@ -71,7 +72,8 @@ class Interface:
         texte_fleche_bas = self.font.render(f'↓', True, (255, 255, 255))
         pygame.draw.rect(self.fenetre, (0, 0, 0), (110, 420, 10, 30))
 
-        texte_deplacement_vitesse = self.font.render(f'Vitesse de déplacement: {Moteur_util.vitesse_deplacement}', True, (0, 0, 0))
+        texte_deplacement_vitesse = self.font.render(f'Vitesse de déplacement: {Moteur_util.vitesse_deplacement}', True,
+                                                     (0, 0, 0))
         texte_plus_deplacement = self.font.render(f'+', True, (0, 0, 0))
         texte_moins_deplacement = self.font.render(f'-', True, (0, 0, 0))
 
@@ -79,11 +81,12 @@ class Interface:
             texte_reinit_aleatoire = self.font.render(f'Réinitialiser aléatoirement', True, (255, 255, 255))
             pygame.draw.rect(self.fenetre, (0, 0, 0), (0, 510, 250, 30))
         else:
-            texte_reinit_aleatoire = self.font.render(f'Réinitialiser aléatoirement', True, (0,0,0))
+            texte_reinit_aleatoire = self.font.render(f'Réinitialiser aléatoirement', True, (0, 0, 0))
             pygame.draw.rect(self.fenetre, (255, 255, 255), (0, 510, 250, 30))
 
         texte_changement_regle = self.font.render(f'Changer les règles :', True, (0, 0, 0))
-        texte_naissance = self.font.render(f'Naissance : {grille.nb1_naissance} | {grille.nb2_naissance}', True, (0, 0, 0))
+        texte_naissance = self.font.render(f'Naissance : {grille.nb1_naissance} | {grille.nb2_naissance}', True,
+                                           (0, 0, 0))
         texte_naissance_plus = self.font.render(f'+', True, (0, 0, 0))
         texte_naissance_moins = self.font.render(f'-', True, (0, 0, 0))
         texte_survie = self.font.render(f'Survie : {grille.nb_survie}', True, (0, 0, 0))
@@ -123,7 +126,6 @@ class Interface:
         self.fenetre.blit(texte_survie_plus, (200, 600))
         self.fenetre.blit(texte_survie_moins, (220, 600))
 
-
     def dessiner_grille(self, grille, Fenetre_util, Moteur_util):
         n_lignes, n_colonnes = grille.grille.shape
 
@@ -135,25 +137,26 @@ class Interface:
         int_x_coords = x_coords
         int_y_coords = y_coords
 
-        #Filtrer les cellules en dehors de l'écran
+        # Filtrer les cellules en dehors de l'écran
         mask = (int_x_coords >= Fenetre_util.taille_statistiques) & (int_x_coords < self.fenetre.get_width())
         mask &= (int_y_coords >= 0) & (int_y_coords < self.fenetre.get_height())
         int_x_coords = int_x_coords[mask]
         int_y_coords = int_y_coords[mask]
 
-        caclCoordHG =  ((int_x_coords[0]-Fenetre_util.taille_statistiques)//Fenetre_util.taille_case)+Moteur_util.scroll_x, (int_y_coords[0]//Fenetre_util.taille_case)+Moteur_util.scroll_y
-        caclCoordBD =  ((int_x_coords[-1]-Fenetre_util.taille_statistiques)//Fenetre_util.taille_case)+Moteur_util.scroll_x, (int_y_coords[-1]//Fenetre_util.taille_case)+Moteur_util.scroll_y
+        caclCoordHG = ((int_x_coords[
+                            0] - Fenetre_util.taille_statistiques) // Fenetre_util.taille_case) + Moteur_util.scroll_x, (
+                                  int_y_coords[0] // Fenetre_util.taille_case) + Moteur_util.scroll_y
+        caclCoordBD = ((int_x_coords[
+                            -1] - Fenetre_util.taille_statistiques) // Fenetre_util.taille_case) + Moteur_util.scroll_x, (
+                                  int_y_coords[-1] // Fenetre_util.taille_case) + Moteur_util.scroll_y
 
-        
-        #Premier point de la grille
+        # Premier point de la grille
         Moteur_util.coordHG = caclCoordHG
 
-
-        #Derneir point de la grille
+        # Derneir point de la grille
         Moteur_util.coordBD = caclCoordBD
 
         # Moteur_util.gerer_taille_non_comforme(Fenetre_util, self)
-        
 
         # Filtrer les cellules vivantes
         vivant_mask = grille.grille == 1
@@ -164,9 +167,6 @@ class Interface:
         mask1 &= (vivant_y_coords >= 0) & (vivant_y_coords < self.fenetre.get_height())
         dessin_x_coords = vivant_x_coords[mask1]
         dessin_y_coords = vivant_y_coords[mask1]
-
-    
-        
 
         # Dessiner les cellules mortes en arrière-plan
         rect = pygame.Rect(Fenetre_util.taille_statistiques, 0, self.fenetre.get_width(), self.fenetre.get_height())
@@ -189,11 +189,36 @@ class Interface:
             # Dessiner les lignes horizontales
             for y in range(n_lignes + 1):
                 start_pos = (Fenetre_util.taille_statistiques, y * Fenetre_util.taille_case)
-                end_pos = (Fenetre_util.taille_statistiques + n_colonnes * Fenetre_util.taille_case, y * Fenetre_util.taille_case)
+                end_pos = (
+                Fenetre_util.taille_statistiques + n_colonnes * Fenetre_util.taille_case, y * Fenetre_util.taille_case)
                 pygame.draw.line(self.fenetre, (128, 128, 128), start_pos, end_pos)
 
             # Dessiner les lignes verticales
             for x in range(n_colonnes + 1):
                 start_pos = (Fenetre_util.taille_statistiques + x * Fenetre_util.taille_case, 0)
-                end_pos = (Fenetre_util.taille_statistiques + x * Fenetre_util.taille_case, n_lignes * Fenetre_util.taille_case)
+                end_pos = (
+                Fenetre_util.taille_statistiques + x * Fenetre_util.taille_case, n_lignes * Fenetre_util.taille_case)
                 pygame.draw.line(self.fenetre, (128, 128, 128), start_pos, end_pos)
+
+    def afficher_statistiques_figures(self, gliders, blinkers, blocks):
+        couleur_texte = (0, 0, 0)
+        # Positionner le texte juste à côté du bouton "Rechercher"
+        x_position = 170  # Ajustez cette valeur en fonction de la largeur du bouton "Rechercher"
+        y_position = self.fenetre.get_height() - 120  # Même hauteur que le bouton "Rechercher"
+
+        texte_gliders = self.font.render(f'Gliders: {gliders}', True, couleur_texte)
+        texte_blinkers = self.font.render(f'Blinkers: {blinkers}', True, couleur_texte)
+        texte_blocks = self.font.render(f'Blocks: {blocks}', True, couleur_texte)
+
+        self.fenetre.blit(texte_gliders, (x_position, y_position))
+        self.fenetre.blit(texte_blinkers, (x_position, y_position + 20))
+        self.fenetre.blit(texte_blocks, (x_position, y_position + 40))
+
+    def afficher_bouton_rechercher(self):
+        couleur_bouton = (0, 200, 0)
+        couleur_texte = (255, 255, 255)
+        rect = pygame.Rect(10, self.fenetre.get_height() - 120, 150, 50)
+        pygame.draw.rect(self.fenetre, couleur_bouton, rect)
+        texte = self.font.render('Rechercher', True, couleur_texte)
+        self.fenetre.blit(texte, (rect.x + 10, rect.y + 10))
+        return rect

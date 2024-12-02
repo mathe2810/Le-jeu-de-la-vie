@@ -1,7 +1,15 @@
 import numpy as np
 import pygame
 import math
+# Define patterns for usual figures
+GLIDER_PATTERN = np.array([[0, 1, 0],
+                           [0, 0, 1],
+                           [1, 1, 1]])
 
+BLINKER_PATTERN = np.array([[1, 1, 1]])
+
+BLOCK_PATTERN = np.array([[1, 1],
+                          [1, 1]])
 class Moteur:
     def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form,Bool_sauvegarde,Bool_form_placement, Bool_reinit_ale, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement, input_text, pos_souris_grille):
         self.Bool_pause = Bool_pause
@@ -175,3 +183,17 @@ class Moteur:
                 self.scroll_x -= self.vitesse_deplacement
             elif self.coordBD[1] + self.scroll_y > grille.n_lignes-1:
                 self.scroll_y -= self.vitesse_deplacement
+def detect_patterns(grid, pattern):
+    pattern_height, pattern_width = pattern.shape
+    count = 0
+    for i in range(grid.shape[0] - pattern_height + 1):
+        for j in range(grid.shape[1] - pattern_width + 1):
+            if np.array_equal(grid[i:i+pattern_height, j:j+pattern_width], pattern):
+                count += 1
+    return count
+
+def count_usual_figures(grid):
+    gliders = detect_patterns(grid, GLIDER_PATTERN)
+    blinkers = detect_patterns(grid, BLINKER_PATTERN)
+    blocks = detect_patterns(grid, BLOCK_PATTERN)
+    return gliders, blinkers, blocks
