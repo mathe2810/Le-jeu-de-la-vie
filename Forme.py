@@ -40,6 +40,7 @@ class Forme():
             self.grille.grille[y:y+forme.shape[0], x:x+forme.shape[1]] = forme
         else:
             print(f"Erreur : La forme {forme} dépasse les limites de la grille.")
+            print(x + forme.shape[1], " | ", self.grille.grille.shape[1], " | ", y + forme.shape[0], " | ", self.grille.grille.shape[0])
 
 
     def afficher_formes(self):
