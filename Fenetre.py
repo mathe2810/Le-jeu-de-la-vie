@@ -1,5 +1,5 @@
 class Fenetre:
-    def __init__(self, taille_statistiques, taille_case, taille_case_final, grille, couleur_vivant, couleur_mort,):
+    def __init__(self, taille_statistiques, taille_case, taille_case_final, grille, couleur_vivant, couleur_mort):
         self.taille_statistiques = taille_statistiques
         self.taille_case = taille_case
         self.taille_case_final = taille_case_final

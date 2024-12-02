@@ -71,13 +71,13 @@ class Grille:
     # Fonction qui verifie les bonnes proportions de la grille:
     def verifier_proportions_grille(self,Fenetre_util):
         if self.n_colonnes * Fenetre_util.taille_case + Fenetre_util.taille_statistiques > 1800:
-            Fenetre_util.taille_case = 1800 // self.n_colonnes
+            Fenetre_util.taille_case = math.ceil(1800 / self.n_colonnes)
         if self.n_lignes * Fenetre_util.taille_case > 800:
-            Fenetre_util.taille_case = 800 // self.n_lignes
+            Fenetre_util.taille_case = math.ceil(800 / self.n_lignes)
         if self.n_colonnes * Fenetre_util.taille_case + Fenetre_util.taille_statistiques < 250:
-            Fenetre_util.taille_case = 250 // self.n_colonnes
+            Fenetre_util.taille_case = math.ceil(250 / self.n_colonnes)
         if self.n_lignes * Fenetre_util.taille_case < 800:
-            Fenetre_util.taille_case = 800 // self.n_lignes
+            Fenetre_util.taille_case = math.ceil(800 / self.n_lignes)
 
         if Fenetre_util.taille_case == 0:
             Fenetre_util.taille_case = 1
