@@ -76,6 +76,7 @@ while True:
     action = afficher_menu_principal()
 
     if action == "nouvelle_partie":
+        grille.verifier_proportions_grille(Fenetre_util)
         running = True
 
     if action == "charger_sauvegarde":
@@ -125,6 +126,7 @@ while True:
                             sauvegarde_choisie = fichiers_sauvegardes[index_selection]
                             chemin_sauvegarde = os.path.join(dossier_sauvegardes, sauvegarde_choisie)
                             grille.charger_grille_npz(chemin_sauvegarde)
+                            grille.verifier_proportions_grille(Fenetre_util)
                             print(f"Sauvegarde {sauvegarde_choisie} chargée.")
                             EntrerDossierSauvegarde = False
                             running = True
@@ -190,6 +192,7 @@ while True:
                             running = False
                         elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
                             if bouton_retour.collidepoint(event.pos):
+                                grille.creer_grille_vide()
                                 running = False
                                 break
 

@@ -89,3 +89,4 @@ class Grille:
         with np.load(nom_fichier) as data:
             self.grille = data['grille']
             self.n_lignes, self.n_colonnes = self.grille.shape
+            print(self.n_lignes, self.n_colonnes)
