@@ -64,18 +64,19 @@ def afficher_menu_principal():
     while True:
         action = afficher_menu(Interface_util.fenetre)
         if action == "nouvelle_partie":
-            return "nouvelle_partie"
+            largeur, hauteur = afficher_formulaire_dimensions(Interface_util.fenetre, Interface_util.font)
+            return "nouvelle_partie", largeur, hauteur
         elif action == "charger_sauvegarde":
-            return "charger_sauvegarde"
+            return "charger_sauvegarde", None, None
         elif action == "quitter":
             pygame.quit()
             exit()
 
-
 while True:
-    action = afficher_menu_principal()
+    action, largeur, hauteur = afficher_menu_principal()
 
     if action == "nouvelle_partie":
+        grille = Grille(largeur, hauteur, 3, 2, 3)
         grille.verifier_proportions_grille(Fenetre_util)
         running = True
 
@@ -125,6 +126,7 @@ while True:
                         else:
                             sauvegarde_choisie = fichiers_sauvegardes[index_selection]
                             chemin_sauvegarde = os.path.join(dossier_sauvegardes, sauvegarde_choisie)
+                            grille = Grille(10, 10, 3, 2, 3)  # Initialiser avec des dimensions par défaut
                             grille.charger_grille_npz(chemin_sauvegarde)
                             grille.verifier_proportions_grille(Fenetre_util)
                             print(f"Sauvegarde {sauvegarde_choisie} chargée.")
@@ -135,68 +137,67 @@ while True:
                         EntrerDossierSauvegarde = False
 
     while running:
-            current_time = pygame.time.get_ticks()
-            for event in pygame.event.get():
-                if event.type == pygame.QUIT:
-                    running = False
-                elif event.type == pygame.KEYDOWN:
-                    if Moteur_util.Bool_sauvegarde | Moteur_util.Bool_form:
-                        if event.key == pygame.K_RETURN:
-                            if Moteur_util.Bool_sauvegarde:
-                                grille.sauvegarder_grille_npz(f"./sauvegarde/grille/{Moteur_util.input_text}.npz")
-                                Moteur_util.Bool_sauvegarde = False
-                                print(f'Grille sauvegardée sous le nom {Moteur_util.input_text}.npz')
-                                Moteur_util.input_text = ""
-                            else:
-                                Moteur_util.Bool_form = False
-                                print(f'Forme utilisé : {Moteur_util.input_text}')
-                                Moteur_util.Bool_form_placement = True
-                        elif event.key == pygame.K_BACKSPACE:
-                            Moteur_util.input_text = Moteur_util.input_text[:-1]
+        current_time = pygame.time.get_ticks()
+        for event in pygame.event.get():
+            if event.type == pygame.QUIT:
+                running = False
+            elif event.type == pygame.KEYDOWN:
+                if Moteur_util.Bool_sauvegarde | Moteur_util.Bool_form:
+                    if event.key == pygame.K_RETURN:
+                        if Moteur_util.Bool_sauvegarde:
+                            grille.sauvegarder_grille_npz(f"./sauvegarde/grille/{Moteur_util.input_text}.npz")
+                            Moteur_util.Bool_sauvegarde = False
+                            print(f'Grille sauvegardée sous le nom {Moteur_util.input_text}.npz')
+                            Moteur_util.input_text = ""
                         else:
-                            Moteur_util.input_text += event.unicode
+                            Moteur_util.Bool_form = False
+                            print(f'Forme utilisé : {Moteur_util.input_text}')
+                            Moteur_util.Bool_form_placement = True
+                    elif event.key == pygame.K_BACKSPACE:
+                        Moteur_util.input_text = Moteur_util.input_text[:-1]
+                    else:
+                        Moteur_util.input_text += event.unicode
 
-            if Moteur_util.Bool_form:
-                Forme_util.menu_forme()
+        if Moteur_util.Bool_form:
+            Forme_util.menu_forme()
+        else:
+            if Moteur_util.Bool_sauvegarde:
+                rectangle = pygame.Rect(0, 0, Interface_util.fenetre.get_width(), Interface_util.fenetre.get_height())
+                pygame.draw.rect(Interface_util.fenetre, (0, 0, 0), rectangle)
+                texte = Interface_util.font.render('Veuillez choisir le nom de la sauvegarde :', True, (255, 255, 255))
+                Interface_util.fenetre.blit(texte, (10, 10))
+                texte_saisi = Interface_util.font.render(Moteur_util.input_text, True, (255, 255, 255))
+                Interface_util.fenetre.blit(texte_saisi, (10, 50))
+                pygame.display.flip()
             else:
-                if Moteur_util.Bool_sauvegarde:
-                    rectangle = pygame.Rect(0, 0, Interface_util.fenetre.get_width(), Interface_util.fenetre.get_height())
-                    pygame.draw.rect(Interface_util.fenetre, (0, 0, 0), rectangle)
-                    texte = Interface_util.font.render('Veuillez choisir le nom de la sauvegarde :', True, (255, 255, 255))
-                    Interface_util.fenetre.blit(texte, (10, 10))
-                    texte_saisi = Interface_util.font.render(Moteur_util.input_text, True, (255, 255, 255))
-                    Interface_util.fenetre.blit(texte_saisi, (10, 50))
-                    pygame.display.flip()
-                else:
-                    if Moteur_util.Bool_reinit:
-                        grille.creer_grille_vide()
-                        Moteur_util.Bool_reinit = False
+                if Moteur_util.Bool_reinit:
+                    grille.creer_grille_vide()
+                    Moteur_util.Bool_reinit = False
 
-                    if not Moteur_util.Bool_pause:
-                        if current_time - Moteur_util.last_evolution_time >= Moteur_util.evolution_delay:
-                            grille.evoluer()
-                            Moteur_util.last_evolution_time = current_time
+                if not Moteur_util.Bool_pause:
+                    if current_time - Moteur_util.last_evolution_time >= Moteur_util.evolution_delay:
+                        grille.evoluer()
+                        Moteur_util.last_evolution_time = current_time
 
-                        # stocker_statistiques_csv(np.sum(grille.grille), grille.grille.size - np.sum(grille.grille), Moteur_util.iteration)
-                        Moteur_util.iteration += 1
+                    Moteur_util.iteration += 1
 
-                    Moteur_util.gerer_souris(grille, Fenetre_util, Interface_util, Forme_util)
-                    Interface_util.dessiner_grille(grille, Fenetre_util, Moteur_util)
-                    Interface_util.afficher_statistiques(grille, Fenetre_util, Moteur_util)
+                Moteur_util.gerer_souris(grille, Fenetre_util, Interface_util, Forme_util)
+                Interface_util.dessiner_grille(grille, Fenetre_util, Moteur_util)
+                Interface_util.afficher_statistiques(grille, Fenetre_util, Moteur_util)
 
-                    bouton_retour = afficher_bouton_retour(Interface_util.fenetre, Interface_util.font)
-                    pygame.display.flip()
+                bouton_retour = afficher_bouton_retour(Interface_util.fenetre, Interface_util.font)
+                pygame.display.flip()
 
-                    for event in pygame.event.get():
-                        if event.type == pygame.QUIT:
+                for event in pygame.event.get():
+                    if event.type == pygame.QUIT:
+                        running = False
+                    elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
+                        if bouton_retour.collidepoint(event.pos):
+                            grille.creer_grille_vide()
                             running = False
-                        elif event.type == pygame.MOUSEBUTTONDOWN and event.button == 1:
-                            if bouton_retour.collidepoint(event.pos):
-                                grille.creer_grille_vide()
-                                running = False
-                                break
+                            break
 
-                    Moteur_util.clock.tick(Moteur_util.fps)
+                Moteur_util.clock.tick(Moteur_util.fps)
 
 
 
