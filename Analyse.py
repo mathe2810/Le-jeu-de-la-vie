@@ -8,22 +8,21 @@ class Analyse:
         pass
 
     # Fonction pour analyser l'évolution de la grille
-    def analyser_evolution(grille_initiale, grille_finale):
+    def analyser_evolution(self,grille_initiale, grille_finale):
         changement = np.sum(grille_initiale != grille_finale)
         return changement
 
     # Fonction pour stocker les statistiques des cellules vivantes et mortes à chaque itération dans un fichier CSV
-    def stocker_statistiques_csv(n_vivants, n_morts, iteration):
-        fichier = 'statistiques.csv'
-        existe = os.path.exists(fichier)
-        with open(fichier, mode='a', newline='') as file:
+    def stocker_statistiques_csv(self,n_vivants, n_morts, iteration, nom_fichier='statistiques.csv'):
+        existe = os.path.exists(nom_fichier)
+        with open(nom_fichier, mode='a', newline='') as file:
             writer = csv.writer(file)
             if not existe:
                 writer.writerow(['Iteration', 'Vivants', 'Morts'])  # Écrire l'en-tête si le fichier n'existe pas
             writer.writerow([iteration, n_vivants, n_morts])
 
     # Fonction pour charger les statistiques depuis un fichier CSV
-    def charger_statistiques_csv():
+    def charger_statistiques_csv(self):
         fichier = 'statistiques.csv'
         statistiques = []
         if os.path.exists(fichier):
@@ -34,12 +33,12 @@ class Analyse:
         return statistiques
 
     # Fonction pour supprimer les statistiques
-    def supprimer_statistiques():
+    def supprimer_statistiques(self):
         if os.path.exists('statistiques.csv'):
             os.remove('statistiques.csv')
 
     # Fonction pour afficher les statistiques sous forme de courbe
-    def afficher_courbe_statistiques(statistiques):
+    def afficher_courbe_statistiques(self,statistiques):
         iterations = [int(stat['Iteration']) for stat in statistiques]
         vivants = [int(stat['Vivants']) for stat in statistiques]
         morts = [int(stat['Morts']) for stat in statistiques]

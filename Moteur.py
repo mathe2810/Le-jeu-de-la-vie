@@ -11,7 +11,7 @@ BLINKER_PATTERN = np.array([[1, 1, 1]])
 BLOCK_PATTERN = np.array([[1, 1],
                           [1, 1]])
 class Moteur:
-    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form,Bool_sauvegarde,Bool_form_placement, Bool_reinit_ale, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement, input_text, pos_souris_grille):
+    def __init__(self, Bool_pause, Bool_grille, Bool_reinit,Bool_form,Bool_sauvegarde,Bool_form_placement, Bool_reinit_ale, last_click_time, iteration, scroll_x, scroll_y,coordHG,coordBD, clock, fps, evolution_delay, last_evolution_time, vitesse_deplacement, input_text, pos_souris_grille, nom_fichier_stat):
         self.Bool_pause = Bool_pause
         self.Bool_grille = Bool_grille
         self.Bool_reinit = Bool_reinit
@@ -33,6 +33,7 @@ class Moteur:
         self.pos_souris_grille = pos_souris_grille
         self.Bool_form_placement = Bool_form_placement
         self.Bool_reinit_ale = Bool_reinit_ale
+        self.nom_fichier_stat = nom_fichier_stat
 
     # def gerer_taille_non_comforme(self, Fenetre_util, Interface_util):
     #     if (self.coordBD[0] - self.scroll_x) * Fenetre_util.taille_case + Fenetre_util.taille_statistiques+2 < Interface_util.fenetre.get_width() and  (self.coordBD[1] - self.scroll_y) * Fenetre_util.taille_case < Interface_util.fenetre.get_height():

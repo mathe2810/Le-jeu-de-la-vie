@@ -66,6 +66,7 @@ def afficher_menu(fenetre):
     boutons = [
         {"label": "Nouvelle Partie", "action": "nouvelle_partie"},
         {"label": "Charger Sauvegarde", "action": "charger_sauvegarde"},
+        {"label": "Statistiques", "action": "statistiques"},
         {"label": "Quitter", "action": "quitter"}
     ]
 
