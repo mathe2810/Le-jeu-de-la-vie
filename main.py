@@ -11,7 +11,7 @@ import os
 
 Analyse_util = Analyse()
 
-# Analyse.supprimer_statistiques()
+Analyse_util.supprimer_statistiques()
 
 # Menu()
 
@@ -69,9 +69,11 @@ def afficher_menu_principal():
     while True:
         action = afficher_menu(Interface_util.fenetre)
         if action == "nouvelle_partie":
+            Analyse_util.vider_fichier(nom_ouverture_fichier_stat + 'statistiques.csv')
             taille = afficher_formulaire_dimensions(Interface_util.fenetre, Interface_util.font)
             return "nouvelle_partie", taille, taille
         elif action == "charger_sauvegarde":
+            Analyse_util.vider_fichier(nom_ouverture_fichier_stat + 'statistiques.csv')
             return "charger_sauvegarde", None, None
         elif action == "statistiques":
             return "statistiques", None, None
@@ -152,6 +154,8 @@ while True:
                             grille.charger_grille_npz(chemin_sauvegarde)
                             grille.verifier_proportions_grille(Fenetre_util)
                             print(f"Sauvegarde {sauvegarde_choisie} chargée.")
+                            Moteur_util.iteration = int(Analyse_util.prendreDerniereIteration(nom_ouverture_fichier_stat + nom_de_fichier))
+                            Analyse_util.vider_fichier(nom_ouverture_fichier_stat + 'statistiques.csv')
                             EntrerDossierSauvegarde = False
                             running = True
                     elif event.key == pygame.K_ESCAPE:
@@ -272,6 +276,7 @@ while True:
                     nb_morts = grille.grille.size - nb_vivants
                     Analyse_util.stocker_statistiques_csv(nb_vivants, nb_morts, Moteur_util.iteration, nom_ouverture_fichier_stat + Moteur_util.nom_fichier_stat)
                     Moteur_util.iteration += 1
+                    print(Moteur_util.iteration)
 
                 Moteur_util.gerer_souris(grille, Fenetre_util, Interface_util, Forme_util)
                 Interface_util.dessiner_grille(grille, Fenetre_util, Moteur_util)

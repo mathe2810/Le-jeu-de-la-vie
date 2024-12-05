@@ -69,3 +69,25 @@ class Analyse:
             print(f"Le fichier {source} a été copié vers {destination}.")
         else:
             print(f"Le fichier source {source} n'existe pas.")
+    
+    def prendreDerniereIteration(self, chemin_fichier):
+        derniere_iteration = None
+        if os.path.exists(chemin_fichier):
+            with open(chemin_fichier, mode='r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    derniere_iteration = row['Iteration']
+            return derniere_iteration
+        else:
+            with open(chemin_fichier, mode='w', newline='') as file:
+                writer = csv.writer(file)
+                writer.writerow(['Iteration', 'Vivants', 'Morts'])  # Écrire l'en-tête si le fichier n'existe pas
+                return 0
+            
+    def vider_fichier(self, chemin_fichier):
+        with open(chemin_fichier, 'w') as file:
+            writer = csv.writer(file)
+            writer.writerow(['Iteration', 'Vivants', 'Morts'])  # Écrire l'en-tête
+        print(f"Le fichier {chemin_fichier} a été vidé.")
+
+                
