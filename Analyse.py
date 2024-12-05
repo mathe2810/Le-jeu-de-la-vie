@@ -2,6 +2,10 @@ import numpy as np
 import csv
 import os
 import matplotlib.pyplot as plt
+import shutil
+
+
+
 
 class Analyse:
     def __init__(self):
@@ -22,11 +26,10 @@ class Analyse:
             writer.writerow([iteration, n_vivants, n_morts])
 
     # Fonction pour charger les statistiques depuis un fichier CSV
-    def charger_statistiques_csv(self):
-        fichier = 'statistiques.csv'
+    def charger_statistiques_csv(self, chemin_fichier='statistiques.csv'):
         statistiques = []
-        if os.path.exists(fichier):
-            with open(fichier, mode='r') as file:
+        if os.path.exists(chemin_fichier):
+            with open(chemin_fichier, mode='r') as file:
                 reader = csv.DictReader(file)
                 for row in reader:
                     statistiques.append(row)
@@ -52,3 +55,17 @@ class Analyse:
         plt.legend()
         plt.grid(True)
         plt.show()
+
+    def copier_fichier(self, source, destination):
+        # Créer le fichier de destination s'il n'existe pas
+        if not os.path.exists(destination):
+            with open(destination, 'w') as file:
+                pass  # Créer un fichier vide
+            print(f"Le fichier de destination {destination} a été créé.")
+
+        # Copier le contenu du fichier source vers le fichier de destination
+        if os.path.exists(source):
+            shutil.copyfile(source, destination)
+            print(f"Le fichier {source} a été copié vers {destination}.")
+        else:
+            print(f"Le fichier source {source} n'existe pas.")

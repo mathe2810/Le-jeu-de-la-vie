@@ -210,15 +210,9 @@ while True:
                             print(f"Chargement de la sauvegarde {nom_de_fichier}...")
                             nom_de_fichier = nom_de_fichier + '.csv'
                             chemin_sauvegarde = os.path.join(dossier_sauvegardes, sauvegarde_choisie)
-                            grille = Grille(10, 10, 3, 2, 3)  # Initialiser avec des dimensions par défaut
-                            Fenetre_util = Fenetre(250, 3,3, grille,(255, 255, 255),(0, 0, 0))
-                            Interface_util = Interface(pygame.display.set_mode(Fenetre_util.taille_fenetre), pygame.font.SysFont('Arial', 20))
-                            Moteur_util = Moteur(False, False, False,False,False,False,False, 0, 0, 0, 0, (0,0), (0,0), pygame.time.Clock(), 160, 20, pygame.time.get_ticks(),5,"",(0,0),nom_de_fichier)
-                            Forme_util = Forme(grille, Fenetre_util, Moteur_util, Interface_util,0,0)
-                            Forme_util.formes = Forme_util.charger_formes(nom_ouverture_fichier_form + 'form.npz')
-                            grille.charger_grille_npz(chemin_sauvegarde)
-                            grille.verifier_proportions_grille(Fenetre_util)
                             print(f"Sauvegarde {sauvegarde_choisie} chargée.")
+                            Analyse_util.charger_statistiques_csv(chemin_sauvegarde)
+                            Analyse_util.afficher_courbe_statistiques(Analyse_util.charger_statistiques_csv(chemin_sauvegarde))
                             EntrerDossierSauvegarde = False
                             running = False
                     elif event.key == pygame.K_ESCAPE:
@@ -238,6 +232,8 @@ while True:
                             grille.sauvegarder_grille_npz(f"./sauvegarde/grille/{Moteur_util.input_text}.npz")
                             Moteur_util.Bool_sauvegarde = False
                             print(f'Grille sauvegardée sous le nom {Moteur_util.input_text}.npz')
+                            Moteur_util.nom_fichier_stat = Moteur_util.input_text + '.csv'
+                            Analyse_util.copier_fichier(nom_ouverture_fichier_stat + 'statistiques.csv', nom_ouverture_fichier_stat + Moteur_util.nom_fichier_stat)
                             Moteur_util.input_text = ""
                         else:
                             Moteur_util.Bool_form = False
