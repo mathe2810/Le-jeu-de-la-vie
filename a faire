@@ -1,6 +1,6 @@
 -Optimiser toutes les fonctions au maximums
 
-
+-Implementer les fonctionns d analyse de temps d execution  
 
 # # Boucle principale du jeu
 # running = True

@@ -90,4 +90,52 @@ class Analyse:
             writer.writerow(['Iteration', 'Vivants', 'Morts'])  # Écrire l'en-tête
         print(f"Le fichier {chemin_fichier} a été vidé.")
 
+    def vider_fichier_temps(self, chemin_fichier):
+        with open(chemin_fichier, 'w') as file:
+            writer = csv.writer(file)
+            writer.writerow(['Temps', 'Taille', 'Nombre de cellule'])  # Écrire l'en-tête
+        print(f"Le fichier {chemin_fichier} a été vidé.")
+
+    def enregister_temps(self, temps, taille_grille, nombre_cellule_vivantes, chemin_fichier='./sauvegarde/temps/temps.csv'):
+        existe = os.path.exists(chemin_fichier)
+        with open(chemin_fichier, mode='a', newline='') as file:
+            writer = csv.writer(file)
+            if not existe:
+                writer.writerow(['Temps', 'Taille', 'Nombre de cellule'])  # Écrire l'en-tête si le fichier n'existe pas
+            writer.writerow([temps,taille_grille,nombre_cellule_vivantes])
+
+    def charger_temps(self, chemin_fichier='./sauvegarde/temps/temps.csv'):
+        temps = []
+        if os.path.exists(chemin_fichier):
+            with open(chemin_fichier, mode='r') as file:
+                reader = csv.DictReader(file)
+                for row in reader:
+                    temps.append(row)
+        return temps
+    
+    def afficher_courbe_temps(self, temps):
+        temps_execution = [float(temp['Temps']) for temp in temps]
+        nombre_cellule = [int(temp['Nombre de cellule']) for temp in temps]
+        a = []
+        for i in range(len(temps_execution)):
+            a.append(i)
+
+        fig, ax1 = plt.subplots(figsize=(10, 5))
+
+        color = 'tab:orange'
+        ax1.set_xlabel('Nombre de cellules vivantes')
+        ax1.set_ylabel('Temps d\'exécution (us)', color=color)
+        ax1.plot(a, temps_execution, label='Temps d\'exécution', color=color)
+        ax1.tick_params(axis='y', labelcolor=color)
+
+        ax2 = ax1.twinx()  # Instancier un second axe qui partage le même axe x
+        color = 'tab:blue'
+        ax2.set_ylabel('Nombre de cellules vivantes', color=color)
+        ax2.plot(a, nombre_cellule, label='Nombre de cellules vivantes', color=color)
+        ax2.tick_params(axis='y', labelcolor=color)
+
+        fig.tight_layout()  # Pour éviter que les labels se chevauchent
+        plt.title('Temps d\'exécution de l\'évolution en fonction du nombre de cellules vivantes')
+        plt.show()
+
                 

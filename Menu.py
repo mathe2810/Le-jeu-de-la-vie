@@ -1,4 +1,5 @@
 import pygame
+
 def afficher_formulaire_dimensions(fenetre, font):
     input_text = ""
     input_active = None
@@ -67,6 +68,7 @@ def afficher_menu(fenetre):
         {"label": "Nouvelle Partie", "action": "nouvelle_partie"},
         {"label": "Charger Sauvegarde", "action": "charger_sauvegarde"},
         {"label": "Statistiques", "action": "statistiques"},
+        {"label": "Temps", "action": "Temps"},
         {"label": "Quitter", "action": "quitter"}
     ]
 

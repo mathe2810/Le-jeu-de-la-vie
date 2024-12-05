@@ -8,10 +8,13 @@ from Fenetre import Fenetre
 from Analyse import Analyse
 from Menu import *
 import os
+import time
 
 Analyse_util = Analyse()
 
 Analyse_util.supprimer_statistiques()
+
+Analyse_util.vider_fichier_temps('./sauvegarde/temps/temps.csv')
 
 # Menu()
 
@@ -30,7 +33,7 @@ pygame.font.init()
 Fenetre_util = Fenetre(250, 3,3, grille,(255, 255, 255),(0, 0, 0))
 
 #Initialisation de l'interface graphique
-Interface_util = Interface(pygame.display.set_mode(Fenetre_util.taille_fenetre), pygame.font.SysFont('Arial', 20))
+Interface_util = Interface(pygame.display.set_mode(Fenetre_util.taille_fenetre, pygame.FULLSCREEN), pygame.font.SysFont('Arial', 20))
 
 #Initialisation du moteur
 Moteur_util = Moteur(False, False, False,False,False,False,False, 0, 0, 0, 0, (0,0), (0,0), pygame.time.Clock(), 160, 20, pygame.time.get_ticks(),5,"",(0,0),'statistiques.csv')
@@ -77,6 +80,8 @@ def afficher_menu_principal():
             return "charger_sauvegarde", None, None
         elif action == "statistiques":
             return "statistiques", None, None
+        elif action == "Temps":
+            return "Temps", None, None
         elif action == "quitter":
             pygame.quit()
             exit()
@@ -87,7 +92,7 @@ while True:
     if action == "nouvelle_partie":
         grille = Grille(largeur, hauteur, 3, 2, 3)
         Fenetre_util = Fenetre(250, 3,3, grille,(255, 255, 255),(0, 0, 0))
-        Interface_util = Interface(pygame.display.set_mode(Fenetre_util.taille_fenetre), pygame.font.SysFont('Arial', 20))
+        Interface_util = Interface(pygame.display.set_mode(Fenetre_util.taille_fenetre,pygame.FULLSCREEN), pygame.font.SysFont('Arial', 20))
         Moteur_util = Moteur(False, False, False,False,False,False,False, 0, 0, 0, 0, (0,0), (0,0), pygame.time.Clock(), 160, 20, pygame.time.get_ticks(),5,"",(0,0),'statistiques.csv')
         Forme_util = Forme(grille, Fenetre_util, Moteur_util, Interface_util,0,0)
         Forme_util.formes = Forme_util.charger_formes(nom_ouverture_fichier_form + 'form.npz')
@@ -147,7 +152,7 @@ while True:
                             chemin_sauvegarde = os.path.join(dossier_sauvegardes, sauvegarde_choisie)
                             grille = Grille(10, 10, 3, 2, 3)  # Initialiser avec des dimensions par défaut
                             Fenetre_util = Fenetre(250, 3,3, grille,(255, 255, 255),(0, 0, 0))
-                            Interface_util = Interface(pygame.display.set_mode(Fenetre_util.taille_fenetre), pygame.font.SysFont('Arial', 20))
+                            Interface_util = Interface(pygame.display.set_mode(Fenetre_util.taille_fenetre,pygame.FULLSCREEN), pygame.font.SysFont('Arial', 20))
                             Moteur_util = Moteur(False, False, False,False,False,False,False, 0, 0, 0, 0, (0,0), (0,0), pygame.time.Clock(), 160, 20, pygame.time.get_ticks(),5,"",(0,0),nom_de_fichier)
                             Forme_util = Forme(grille, Fenetre_util, Moteur_util, Interface_util,0,0)
                             Forme_util.formes = Forme_util.charger_formes(nom_ouverture_fichier_form + 'form.npz')
@@ -223,6 +228,10 @@ while True:
                         print("Chargement annulé.")
                         EntrerDossierSauvegarde = False
                         running = False
+    if action == "Temps":
+        fichier_temps = './sauvegarde/temps/temps.csv'
+        Analyse_util.afficher_courbe_temps(Analyse_util.charger_temps(fichier_temps))
+        running = False
 
     while running:
         current_time = pygame.time.get_ticks()
@@ -270,13 +279,16 @@ while True:
 
                 if not Moteur_util.Bool_pause:
                     if current_time - Moteur_util.last_evolution_time >= Moteur_util.evolution_delay:
+                        time_start = time.perf_counter_ns()
                         grille.evoluer()
+                        time_end = time.perf_counter_ns()
+                        time_end = (time_end - time_start) / 1000 # Convert to microseconds
+                        Analyse_util.enregister_temps(time_end, grille.grille.size, np.sum(grille.grille))
                         Moteur_util.last_evolution_time = current_time
                     nb_vivants = np.sum(grille.grille)
                     nb_morts = grille.grille.size - nb_vivants
                     Analyse_util.stocker_statistiques_csv(nb_vivants, nb_morts, Moteur_util.iteration, nom_ouverture_fichier_stat + Moteur_util.nom_fichier_stat)
                     Moteur_util.iteration += 1
-                    print(Moteur_util.iteration)
 
                 Moteur_util.gerer_souris(grille, Fenetre_util, Interface_util, Forme_util)
                 Interface_util.dessiner_grille(grille, Fenetre_util, Moteur_util)
