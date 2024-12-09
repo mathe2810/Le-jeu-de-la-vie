@@ -106,12 +106,12 @@ def afficher_menu(fenetre):
     while running:
         
         current_time = pygame.time.get_ticks()
-        print(current_time - last_time)
-        if current_time - last_time > 2:
+        if current_time - last_time >= 30:
             fenetre.blit(image_fond[iteration], (0, 0))
             iteration += 1
             if iteration > 87:
                 iteration = 0
+            last_time = current_time
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -132,4 +132,4 @@ def afficher_menu(fenetre):
             fenetre.blit(texte_bouton, (rect.x + rect.width // 2 - texte_bouton.get_width() // 2, rect.y + rect.height // 2 - texte_bouton.get_height() // 2))
 
         pygame.display.flip()
-        last_time = current_time
+        
