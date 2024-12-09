@@ -69,7 +69,9 @@ def afficher_bouton_retour(fenetre, font):
     return rect
 
 def afficher_menu_principal():
+    
     while True:
+       
         action = afficher_menu(Interface_util.fenetre)
         if action == "nouvelle_partie":
             Analyse_util.vider_fichier(nom_ouverture_fichier_stat + 'statistiques.csv')
@@ -85,8 +87,10 @@ def afficher_menu_principal():
         elif action == "quitter":
             pygame.quit()
             exit()
-
+        
+        
 while True:
+    
     action, largeur, hauteur = afficher_menu_principal()
 
     if action == "nouvelle_partie":
