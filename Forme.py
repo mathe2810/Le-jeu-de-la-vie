@@ -26,7 +26,8 @@ class Forme():
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
                 [0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0]
-            ])
+            ]),
+            'clignotant 2d': np.array([[0, 1, 1, 1],[1, 1, 1, 0]]),
 
         }
         np.savez_compressed(filename, **formes)
@@ -64,6 +65,7 @@ class Forme():
             self.Interface_util.fenetre.blit(texte_forme, (10, y_offset))
 
             if forme_name == 'gosper gun':
+                y_offset += 60
                 continue
 
             # Dessiner la forme à côté du nom

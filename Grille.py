@@ -1,6 +1,7 @@
 import numpy as np
 import pygame
 import math
+from scipy.signal import convolve2d
 
 class Grille:
     def __init__(self, n_lignes, n_colonnes,nb_survie, nb1_naissance, nb2_naissance):
@@ -44,6 +45,46 @@ class Grille:
         )
 
         # Application des règles du jeu de la vie
+        nouvelle_grille = (self.grille == 1) & ((voisins >= self.nb1_naissance) & (voisins <= self.nb2_naissance)) | (self.grille == 0) & (voisins == self.nb_survie)
+
+        # Mise à jour de la grille
+        self.grille = nouvelle_grille.astype(int)
+
+    def evoluer_avec_bordures(self, mode='tore'):
+        # Définir le noyau de convolution pour compter les voisins
+        kernel = np.array([[1, 1, 1],
+                           [1, 0, 1],
+                           [1, 1, 1]])
+
+        # if mode == 'tore':
+        #     # Calculer la somme des voisins vivants en utilisant la convolution avec décalages circulaires
+        #     voisins = convolve2d(self.grille, kernel, mode='same', boundary='wrap')
+        # elif mode == 'bordures':
+        # Calculer la somme des voisins vivants en utilisant la convolution avec bordures bloquées
+        voisins = convolve2d(self.grille, kernel, mode='same', boundary='fill', fillvalue=0)
+    
+
+        # Application des règles du jeu de la vie
+        nouvelle_grille = (self.grille == 1) & ((voisins == self.nb1_naissance) | (voisins == self.nb2_naissance)) | (self.grille == 0) & (voisins == self.nb_survie)
+
+        # Mise à jour de la grille
+        self.grille = nouvelle_grille.astype(int)
+
+    def evoluer_sans_bordures(self, mode='tore'):
+        # Définir le noyau de convolution pour compter les voisins
+        kernel = np.array([[1, 1, 1],
+                           [1, 0, 1],
+                           [1, 1, 1]])
+
+        # if mode == 'tore':
+        #     # Calculer la somme des voisins vivants en utilisant la convolution avec décalages circulaires
+        #     voisins = convolve2d(self.grille, kernel, mode='same', boundary='wrap')
+        # elif mode == 'bordures':
+        # Calculer la somme des voisins vivants en utilisant la convolution avec bordures bloquées
+        voisins = convolve2d(self.grille, kernel, mode='same', boundary='wrap')
+    
+
+        # Application des règles du jeu de la vie
         nouvelle_grille = (self.grille == 1) & ((voisins == self.nb1_naissance) | (voisins == self.nb2_naissance)) | (self.grille == 0) & (voisins == self.nb_survie)
 
         # Mise à jour de la grille
@@ -70,14 +111,14 @@ class Grille:
 
     # Fonction qui verifie les bonnes proportions de la grille:
     def verifier_proportions_grille(self,Fenetre_util):
-        if self.n_colonnes * Fenetre_util.taille_case + Fenetre_util.taille_statistiques > 1800:
-            Fenetre_util.taille_case = math.ceil(1800 / self.n_colonnes)
-        if self.n_lignes * Fenetre_util.taille_case > 800:
-            Fenetre_util.taille_case = math.ceil(800 / self.n_lignes)
-        if self.n_colonnes * Fenetre_util.taille_case + Fenetre_util.taille_statistiques < 250:
-            Fenetre_util.taille_case = math.ceil(250 / self.n_colonnes)
-        if self.n_lignes * Fenetre_util.taille_case < 800:
-            Fenetre_util.taille_case = math.ceil(800 / self.n_lignes)
+        if self.n_colonnes * Fenetre_util.taille_case + Fenetre_util.taille_statistiques > 1920:
+            Fenetre_util.taille_case = math.ceil(1920 / self.n_colonnes)
+        if self.n_lignes * Fenetre_util.taille_case > 1080:
+            Fenetre_util.taille_case = math.ceil(1080 / self.n_lignes)
+        if self.n_colonnes * Fenetre_util.taille_case + Fenetre_util.taille_statistiques < 1920:
+            Fenetre_util.taille_case = math.ceil(1920 / self.n_colonnes)
+        if self.n_lignes * Fenetre_util.taille_case < 1080:
+            Fenetre_util.taille_case = math.ceil(1080 / self.n_lignes)
 
         if Fenetre_util.taille_case == 0:
             Fenetre_util.taille_case = 1

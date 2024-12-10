@@ -1,4 +1,5 @@
 import pygame
+
 def afficher_formulaire_dimensions(fenetre, font):
     input_text = ""
     input_active = None
@@ -51,6 +52,7 @@ def afficher_formulaire_dimensions(fenetre, font):
 
 
 def afficher_menu(fenetre):
+    iteration = 0
     pygame.init()
     font = pygame.font.SysFont('Arial', 40)
     couleur_fond = (0, 0, 0)
@@ -59,6 +61,17 @@ def afficher_menu(fenetre):
     couleur_bouton_hover = (150, 150, 150)
 
     fenetre.fill(couleur_fond)
+    # Charger les images de fond et les redimensionner à la taille de la fenêtre
+    image_fond = []
+    for i in range(0, 88):
+        if i < 10:
+            iteration_texte = '0' + str(i)
+        else:
+            iteration_texte = str(i)
+        image_path = f'./video/gif1/Vidéo sans titre ‐ Réalisée avec Clipchamp_0{iteration_texte}.png'
+        image = pygame.image.load(image_path)
+        image = pygame.transform.scale(image, (fenetre.get_width(), fenetre.get_height()))
+        image_fond.append(image)
 
     texte_titre = font.render("Menu Principal", True, couleur_texte)
     fenetre.blit(texte_titre, (fenetre.get_width() // 2 - texte_titre.get_width() // 2, 50))
@@ -66,6 +79,8 @@ def afficher_menu(fenetre):
     boutons = [
         {"label": "Nouvelle Partie", "action": "nouvelle_partie"},
         {"label": "Charger Sauvegarde", "action": "charger_sauvegarde"},
+        {"label": "Statistiques", "action": "statistiques"},
+        {"label": "Temps", "action": "Temps"},
         {"label": "Quitter", "action": "quitter"}
     ]
 
@@ -84,10 +99,19 @@ def afficher_menu(fenetre):
         fenetre.blit(texte_bouton, (x + largeur // 2 - texte_bouton.get_width() // 2, y + hauteur // 2 - texte_bouton.get_height() // 2))
 
     pygame.display.flip()
-
+    
     # Gestion des interactions
     running = True
+    last_time = 0
     while running:
+        
+        current_time = pygame.time.get_ticks()
+        if current_time - last_time >= 30:
+            fenetre.blit(image_fond[iteration], (0, 0))
+            iteration += 1
+            if iteration > 87:
+                iteration = 0
+            last_time = current_time
         for event in pygame.event.get():
             if event.type == pygame.QUIT:
                 pygame.quit()
@@ -108,3 +132,4 @@ def afficher_menu(fenetre):
             fenetre.blit(texte_bouton, (rect.x + rect.width // 2 - texte_bouton.get_width() // 2, rect.y + rect.height // 2 - texte_bouton.get_height() // 2))
 
         pygame.display.flip()
+        
